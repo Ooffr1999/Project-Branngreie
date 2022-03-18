@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Exit_East
+  - Exit_West
+  - Exit_North
+  - Exit_South
   layers:
   - Default
   - TransparentFX

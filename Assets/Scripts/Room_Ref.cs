@@ -13,4 +13,24 @@ public class Room_Ref : MonoBehaviour
     public Transform[] downExits;
     public Transform[] leftExits;
     public Transform[] rightExits;
+
+    public int northEntranceLength()
+    {
+        return upExits.Length;
+    }
+
+    public int southEntranceLength()
+    {
+        return downExits.Length;
+    }
+
+    public int westEntranceLength()
+    {
+        return leftExits.Length;
+    }
+
+    public int eastEntranceLength()
+    {
+        return rightExits.Length;
+    }
 }

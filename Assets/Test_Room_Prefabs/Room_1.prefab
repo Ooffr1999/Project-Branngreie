@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 3554820109227918333}
   m_Layer: 0
-  m_Name: Exit 3
-  m_TagString: Untagged
+  m_Name: Exit_North
+  m_TagString: Exit_North
   m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -154,8 +154,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2668092680949882886}
   m_Layer: 0
-  m_Name: Exit 2
-  m_TagString: Untagged
+  m_Name: Exit_West
+  m_TagString: Exit_West
   m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -184,8 +184,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2668092681756544435}
   m_Layer: 0
-  m_Name: Exit 1
-  m_TagString: Untagged
+  m_Name: Exit_East
+  m_TagString: Exit_East
   m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -214,8 +214,8 @@ GameObject:
   m_Component:
   - component: {fileID: 2970043970890445244}
   m_Layer: 0
-  m_Name: Exit 4
-  m_TagString: Untagged
+  m_Name: Exit_South
+  m_TagString: Exit_South
   m_Icon: {fileID: 419385456094870383, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
