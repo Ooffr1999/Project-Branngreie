@@ -1,87 +1,36 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
-[RequireComponent(typeof(Rigidbody2D))]
+using UnityEngine.Events;
 
 public class Character_Movement : MonoBehaviour
 {
-    [Header("Movement")]
-    public float movement_speed;
+    public float moveSpeed;
 
-    [Header("Collision")]
-    public float skinWidth;
-    
-    Collider2D _collider;
+    public TransitionEffect effect;
+    public UnityEvent onTransitionEvent;
 
-    bool _rightCheck;
-    bool _leftCheck;
-    bool _upCheck;
-    bool _downCheck;
-
-    //Maincam referance
-    Camera mainCamera;
-
-    private void Start()
-    {
-        _collider = GetComponent<Collider2D>();
-        mainCamera = Camera.main;
-
-        //Stop game if no camera is present
-        if (mainCamera == null)
-        {
-            Debug.LogError("Error: Script Character_Movement requires a Camera Object with the MainCamera tag in scene. Game is ended");
-            UnityEditor.EditorApplication.isPlaying = false;
-            Application.Quit();
-        }
-    }
+    public CharacterController controller;
 
     private void Update()
     {
-        //WASD Movement
-        float moveX = Input.GetAxisRaw("Horizontal") * movement_speed * Time.deltaTime;
-        float moveY = Input.GetAxisRaw("Vertical") * movement_speed * Time.deltaTime;
+        GetMovement();
 
-        #region Kolisjonssjekk
-        if (moveX > 0)
-            _rightCheck = checkForCollision(_collider, Vector2.right, skinWidth);
-        else if (moveX < 0)
-            _leftCheck = checkForCollision(_collider, Vector2.left, skinWidth);
-
-        if (moveY > 0)
-            _upCheck = checkForCollision(_collider, Vector2.up, skinWidth);
-        else if (moveY < 0)
-            _downCheck = checkForCollision(_collider, Vector2.down, skinWidth);
-
-        if (moveX > 0 && _rightCheck)
-            moveX = 0;
-        if (moveX < 0 && _leftCheck)
-            moveX = 0;
-        if (moveY > 0 && _upCheck)
-            moveY = 0;
-        if (moveY < 0 && _downCheck)
-            moveY = 0;
-        #endregion
-
-        transform.position += new Vector3(moveX, moveY);
+        if (Input.GetKeyDown(KeyCode.H))
+            effect.Play(.5f, onTransitionEvent);
     }
 
-    bool checkForCollision(Collider2D moveCollider, Vector2 direction, float distance)
+    void GetMovement()
     {
-        if (moveCollider == null)
-            return false;
+        float moveX = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
+        float moveZ = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
 
-        RaycastHit2D[] hits = new RaycastHit2D[10];
-        ContactFilter2D filter = new ContactFilter2D();
-
-        int count = moveCollider.Cast(direction, filter, hits, distance);
-
-        for (int i = 0; i < count; i++)
-        {
-            if (!hits[i].collider.isTrigger)
-                return true;
-        }
-
-        return false;
+        controller.Move(transform.forward * moveZ + transform.right * moveX);
     }
+
+    public void resetPosition()
+    {
+        transform.position = Vector3.zero;
+    }
+
 }
