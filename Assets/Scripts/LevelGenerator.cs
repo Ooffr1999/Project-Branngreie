@@ -12,20 +12,31 @@ public class LevelGenerator : MonoBehaviour
 
     public Room[] rooms;
 
+    GameObject _player;
+    CharacterController _playerController;
+
     [HideInInspector]
     public List<GameObject> floorPool = new List<GameObject>();
     [HideInInspector]
     public List<GameObject> wallPool = new List<GameObject>();
+    [HideInInspector]
+    public List<GameObject> doorPool = new List<GameObject>();
 
+    List<GameObject> leftDoors = new List<GameObject>();
+    List<GameObject> rightDoors = new List<GameObject>();
+ 
     //Til nå er det greit å generere poolet på Start og generere rommet etterpå så man har noe å se på
     private void Start()
     {
-        InitPool(200, 200);
+        _player = GameObject.Find("Player");
+        _playerController = _player.GetComponent<CharacterController>();
+        
+        InitPool(200, 200, 10);
         GenRoom();
     }
 
     //Generer et Pool til gulv og et Pool til vegger
-    void InitPool(int floorPoolSize, int wallPoolSize)
+    void InitPool(int floorPoolSize, int wallPoolSize, int doorPoolSize)
     {
         //Generate floor tiles to the floorpool
         for (int i = 0; i < floorPoolSize; i++)
@@ -42,6 +53,13 @@ public class LevelGenerator : MonoBehaviour
             wallPool[wallPool.Count - 1].SetActive(false);
             wallPool[wallPool.Count - 1].transform.parent = this.transform;
         }
+
+        for (int i = 0; i < doorPoolSize; i++)
+        {
+            doorPool.Add(Instantiate(door, transform.position, door.transform.rotation));
+            doorPool[doorPool.Count - 1].SetActive(false);
+            doorPool[doorPool.Count - 1].transform.parent = this.transform;
+        }
     }
 
     //Generer selve rommet
@@ -54,6 +72,11 @@ public class LevelGenerator : MonoBehaviour
 
         Vector3 startPos = genStartPosition(widthLength, depthLength);
 
+        int doorAmount = genRoomSize(room.doorAmountRange.x, room.doorAmountRange.y);
+
+        if (doorAmount == 0)
+            doorAmount = 1;
+        
         ///Place floor objects
         int i = 0;
         for (int d = 0; d < depthLength; d++)
@@ -66,7 +89,7 @@ public class LevelGenerator : MonoBehaviour
                 floorPool[i].transform.localScale *= sizeModifier;
                 floorPool[i].GetComponent<MeshRenderer>().material = room.floorMats[0];
 
-                i++;  
+                i++;
             }
         }
 
@@ -118,7 +141,45 @@ public class LevelGenerator : MonoBehaviour
         }
 
         ///Place doors
-        
+
+        for (int d = 0; d < doorAmount; d++)
+        {
+            int percentage = Random.Range(0, 100);
+            float doorDepthPosition = Random.Range(0.5f, depthLength - 0.5f);
+
+            doorPool[d].SetActive(true);
+
+            Vector3 doorPosition = new Vector3();
+            doorPosition.z = doorDepthPosition;
+            doorPosition.y = 0.5f;
+
+            if (percentage <= 50)
+            {
+                doorPosition.x = wallPool[0].transform.position.x - 0.75f;
+                leftDoors.Add(doorPool[d]);
+            }
+            else
+            {
+                doorPosition.x = wallPool[0 + widthLength - 1].transform.position.x + 0.75f;
+                rightDoors.Add(doorPool[d]);
+            }
+
+            doorPool[d].transform.position = doorPosition;
+        }
+
+        Debug.Log(widthLength);
+
+        _playerController.enabled = false;
+
+        if (leftDoors.Count > 0 && _player.transform.position.x > 0)
+        {
+            _player.transform.position = new Vector3(leftDoors[0].transform.position.x + 0.5f, _player.transform.position.y, leftDoors[0].transform.position.z);
+        }
+        else if (rightDoors.Count > 0)
+            _player.transform.position = new Vector3(rightDoors[0].transform.position.x - 0.5f, _player.transform.position.y, rightDoors[0].transform.position.z);
+        else _player.transform.position = new Vector3(leftDoors[0].transform.position.x + 0.5f, _player.transform.position.y, leftDoors[0].transform.position.z);
+
+        _playerController.enabled = true;
     }
 
     //Rens rommet før neste GenRoom
@@ -136,6 +197,13 @@ public class LevelGenerator : MonoBehaviour
             wallPool[i].transform.eulerAngles = Vector3.zero;
             wallPool[i].transform.localScale = Vector3.one;
         }
+
+        for (int i = 0; i < doorPool.Count; i++)
+        {
+            doorPool[i].SetActive(false);
+            rightDoors.Clear();
+            leftDoors.Clear();
+        }
     }
 
     //Få et tall mellom to variabler. Basically Random.range, men ser litt finere ut etter min mening
@@ -147,7 +215,7 @@ public class LevelGenerator : MonoBehaviour
     //Normaliser posisjonen til rommet. Fungerer ikke heeeeeelt ordentlig enda
     Vector3 genStartPosition(int widthSize, int depthSize)
     {
-        return new Vector3(-Mathf.FloorToInt(widthSize / 2), 0, 0);
+        return new Vector3(-(widthSize / 2), 0, 0);
     }
 
     //Generer en tilfeldig romtype og return den
@@ -171,7 +239,7 @@ public struct Room
     public int roomHeight;
 
     [Space(10)]
-    public int maxDoorAmount;
+    public Vector2Int doorAmountRange;
 
     [Space(10)]
     public Material[] floorMats;

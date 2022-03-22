@@ -6,6 +6,10 @@ using UnityEngine.Events;
 public class Character_Movement : MonoBehaviour
 {
     public float moveSpeed;
+    public float zLimit;
+
+    public float doorRange;
+    public LayerMask doorLayer;
 
     public TransitionEffect effect;
     public UnityEvent onTransitionEvent;
@@ -16,7 +20,7 @@ public class Character_Movement : MonoBehaviour
     {
         GetMovement();
 
-        if (Input.GetKeyDown(KeyCode.H))
+        if (Input.GetKeyDown(KeyCode.H) && Physics.CheckSphere(transform.position, doorRange, doorLayer))
             effect.Play(.5f, onTransitionEvent);
     }
 
@@ -26,6 +30,9 @@ public class Character_Movement : MonoBehaviour
         float moveZ = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
 
         controller.Move(transform.forward * moveZ + transform.right * moveX);
+
+        if (transform.position.z <= zLimit)
+            transform.position = new Vector3(transform.position.x, transform.position.y, zLimit);
     }
 
     public void resetPosition()
