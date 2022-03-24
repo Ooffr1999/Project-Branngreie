@@ -418,7 +418,7 @@ Light:
   m_Type: 1
   m_Shape: 0
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_Intensity: 0.36
+  m_Intensity: 1
   m_Range: 10
   m_SpotAngle: 30
   m_InnerSpotAngle: 21.80208
@@ -660,6 +660,68 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!1 &1393249408
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1393249411}
+  - component: {fileID: 1393249409}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1393249409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393249408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4d68b9d2b12cc4646a1b972c58300400, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  tracks:
+  - TrackName: House Ambience
+    constant: 1
+    track: {fileID: 8300000, guid: 9ba030fdb3d60bb4c8a03ae08c3dc944, type: 3}
+    volume: 1
+    pitch: 1
+    _source: {fileID: 0}
+  - TrackName: Livingroom Ambience
+    constant: 0
+    track: {fileID: 8300000, guid: 4d10275e14a5f8e4e83e55df770453e9, type: 3}
+    volume: 1
+    pitch: 1
+    _source: {fileID: 0}
+  - TrackName: Bathroom Ambience
+    constant: 0
+    track: {fileID: 8300000, guid: acbec7e71ba96c84d8a1a1871888cf94, type: 3}
+    volume: 1
+    pitch: 1
+    _source: {fileID: 0}
+--- !u!4 &1393249411
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1393249408}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -0.4809739, y: -2.3292818, z: 2.2061977}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 4
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1582068021
 GameObject:
   m_ObjectHideFlags: 0
@@ -670,6 +732,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1582068023}
   - component: {fileID: 1582068022}
+  - component: {fileID: 1582068024}
   m_Layer: 0
   m_Name: LevelGenerator
   m_TagString: Untagged
@@ -698,7 +761,7 @@ MonoBehaviour:
     roomWidthRange: {x: 6, y: 8}
     roomDepthRange: {x: 4, y: 7}
     roomHeight: 3
-    doorAmountRange: {x: 1, y: 5}
+    tempTrackToPlay: Livingroom Ambience
     floorMats:
     - {fileID: 2100000, guid: 908993ad33222314d8931a049e751df0, type: 2}
     wallMats:
@@ -707,7 +770,7 @@ MonoBehaviour:
     roomWidthRange: {x: 2, y: 6}
     roomDepthRange: {x: 2, y: 4}
     roomHeight: 2
-    doorAmountRange: {x: 1, y: 3}
+    tempTrackToPlay: Bathroom Ambience
     floorMats:
     - {fileID: 2100000, guid: f4bd309cd1c8f6a4b91e37f0852cbf70, type: 2}
     wallMats:
@@ -729,6 +792,24 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1582068024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1582068021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22690e0437fa32b489c3c2c15feabca2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  drawPoints: 1
+  start: {x: 5, y: 1, z: 3}
+  end: {x: 7, y: 1, z: 2}
+  gridPoints: []
+  openPoints: []
+  closedPoints: []
 --- !u!1 &1650075763
 GameObject:
   m_ObjectHideFlags: 0
