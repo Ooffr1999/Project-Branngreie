@@ -10,7 +10,7 @@ public class TransitionEffect : MonoBehaviour
 
     public void Play()
     {
-        StartCoroutine(fadeIn(1));
+        StartCoroutine(fadeIn(2));
     }
 
     public void Play(float fadeTime)

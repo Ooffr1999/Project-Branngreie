@@ -34,10 +34,4 @@ public class Character_Movement : MonoBehaviour
         if (transform.position.z <= zLimit)
             transform.position = new Vector3(transform.position.x, transform.position.y, zLimit);
     }
-
-    public void resetPosition()
-    {
-        transform.position = Vector3.zero;
-    }
-
 }

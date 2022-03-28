@@ -9,14 +9,13 @@ public class LevelGenerator : MonoBehaviour
     float sizeModifier = 1;
 
     [SerializeField]
-    GameObject floorTile, wallTile, door;
+    GameObject floorTile, wallTile, door, block;
 
     [SerializeField]
     Room[] rooms;
 
     GameObject _player;
     CharacterController _playerController;
-    PathGenerator _pathGenerator;
     
     //Lists for å lagre object pools.
     [HideInInspector]
@@ -25,13 +24,13 @@ public class LevelGenerator : MonoBehaviour
     public List<GameObject> wallPool = new List<GameObject>();
     [HideInInspector]
     public List<GameObject> doorPool = new List<GameObject>();
+    List<GameObject> blocksPool = new List<GameObject>();
  
     //Til nå er det greit å generere poolet på Start og generere rommet etterpå så man har noe å se på
     private void Start()
     {
         _player = GameObject.Find("Player");
         _playerController = _player.GetComponent<CharacterController>();
-        _pathGenerator = GetComponent<PathGenerator>();
 
         InitPool(200, 200, 10);
         GenRoom();
@@ -56,11 +55,20 @@ public class LevelGenerator : MonoBehaviour
             wallPool[wallPool.Count - 1].transform.parent = this.transform;
         }
 
+        //Generates doors to the rooms
         for (int i = 0; i < doorPoolSize; i++)
         {
             doorPool.Add(Instantiate(door, transform.position, door.transform.rotation));
             doorPool[doorPool.Count - 1].SetActive(false);
             doorPool[doorPool.Count - 1].transform.parent = this.transform;
+        }
+
+        //Generate blocks for room interior
+        for (int i = 0; i < 200; i++)
+        {
+            blocksPool.Add(Instantiate(block, transform.position, block.transform.rotation));
+            blocksPool[blocksPool.Count - 1].SetActive(false);
+            blocksPool[blocksPool.Count - 1].transform.parent = this.transform;
         }
     }
 
@@ -74,7 +82,7 @@ public class LevelGenerator : MonoBehaviour
 
         Vector3 startPos = genStartPosition(mapWidth, mapDepth);
 
-        _pathGenerator.GenerateGrid(mapWidth, mapDepth, startPos, sizeModifier);
+        PathGenerator._instance.GenerateGrid(mapWidth, mapDepth, startPos, sizeModifier);
         
         ///Place floor objects
         int i = 0;
@@ -166,13 +174,10 @@ public class LevelGenerator : MonoBehaviour
             doorPool[d].transform.position = doorPosition;
         }
 
-        _pathGenerator.GetStartAndEndPositions(doorPool[0].transform.position, doorPool[1].transform.position);
-           
-        _pathGenerator.SearchForPath();
+        PathGenerator._instance.GetStartAndEndPositions(doorPool[0].transform.position, doorPool[1].transform.position);
 
-        //MusicManager._instance.StopTempTrack();
-        //MusicManager._instance.PlayTrack(room.tempTrackToPlay);
-
+        setPlayerPosition(PathGenerator._instance.getStartPos());
+        
         Music currentTempTrack = MusicManager._instance.GetPlayingTempTrack();
 
         if (currentTempTrack != null)
@@ -182,7 +187,30 @@ public class LevelGenerator : MonoBehaviour
         }
         else MusicManager._instance.PlayTrack(room.tempTrackToPlay);
 
-        setPlayerPosition(Vector3.zero);
+        GenInterior();
+    }
+
+    public void GenInterior()
+    {
+        //Place whiteblocks around the room
+        List<Vector3> grid = PathGenerator._instance.getGridPoints();
+
+        CleanRoomInterior();
+
+        for (int i = 0; i < grid.Count; i++)
+        {
+            int percentage = Random.Range(0, 100);
+
+            if (percentage < 45 && grid[i] != PathGenerator._instance.getStartPos() && grid[i] != PathGenerator._instance.getEndPos())
+            {
+                blocksPool[i].SetActive(true);
+                blocksPool[i].transform.position = grid[i];
+            }
+        }
+
+        Debug.Log("Start pathfinding");
+
+        StartCoroutine(getPathAfterRoomGenerate());
     }
 
     //Rens rommet før neste GenRoom
@@ -207,11 +235,23 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
+    public void CleanRoomInterior()
+    {
+        for (int i = 0; i < blocksPool.Count; i++)
+        {
+            blocksPool[i].SetActive(false);
+        }
+    }
+
+    //En funksjon for å sette spilleren på plass
     void setPlayerPosition(Vector3 newPosition)
     {
         _playerController.enabled = false;
 
-        _player.transform.position = newPosition;
+        Vector3 adjustedPosition = newPosition;
+        newPosition.y = 0.5f;
+
+        _player.transform.position = adjustedPosition;
 
         _playerController.enabled = true;
     }
@@ -233,6 +273,18 @@ public class LevelGenerator : MonoBehaviour
     {
         int rand = Random.Range(0, rooms.Length);
         return rooms[rand];
+    }
+
+    IEnumerator getPathAfterRoomGenerate()
+    {
+        yield return new WaitForSeconds(0.02f);
+
+        if (PathGenerator._instance.GetPath() == false)
+        {
+            //iterations++;
+            GenInterior();
+            //Debug.Log("Iterations = " + iterations);
+        }
     }
 }
 

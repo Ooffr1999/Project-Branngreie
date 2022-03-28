@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,18 +12,33 @@ public class PathGenerator : MonoBehaviour
     public Vector3 start;
     public Vector3 end;
 
+    public LayerMask obstacleLayer;
+
     int _mapWidth, _mapDepth;
     float _sizeModifier;
 
-    bool done;
-
     public List<Vector3> gridPoints = new List<Vector3>();
 
-    int PathSegment;
+    public List<Vector3> openPoints = new List<Vector3>();
+    public List<Vector3> closedPoints = new List<Vector3>();
 
-    public List<Points> openPoints = new List<Points>();
-    public List<Points> closedPoints = new List<Points>();
+    [HideInInspector]
+    public static PathGenerator _instance;
 
+    private void Awake()
+    {
+        if (_instance != null)
+            Destroy(this);
+        else _instance = this;
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.K))
+            Debug.Log(GetPath());
+    }
+
+    #region Find and Clear Path
     public void GenerateGrid(int mapWidth, int mapDepth, Vector3 startPosition, float sizeModifier)
     {
         gridPoints = MapGridGenerator.GenerateMapGrid(mapWidth, mapDepth, startPosition, sizeModifier);
@@ -29,78 +46,93 @@ public class PathGenerator : MonoBehaviour
         _mapDepth = mapDepth;
         _sizeModifier = sizeModifier;
     }
-
-    public void SearchForPath()
+    
+    public bool GetPath()
     {
-        Points currentPoint = getPoint(start);
-        openPoints.Add(currentPoint);
-        PathSegment++;
+        int cost = 1;
 
-        for (int c = 0; c < 10; c++)
+        ClearPath();
+
+        while (true)
         {
-            if (currentPoint.pointPosition == end)
+            List<Vector3> pointsToAdd = new List<Vector3>();
+
+            for (int c = 0; c < openPoints.Count; c++)
             {
-                done = true;
-                return;
-            }
+                Points[] directions = getDirections(openPoints[c], cost);
 
-            Vector3[] directions = getDirections(currentPoint.pointPosition);
-
-            for (int i = 0; i < 4; i++)
-            {
-                Points newPoint = getPoint(directions[i]);
-                
-                if (closedPoints.Contains(newPoint))
-                    return;
-
-                if (!gridPoints.Contains(newPoint.pointPosition))
-                    return;
-
-                if (newPoint.F < currentPoint.F)
+                for (int i = 0; i < 4; i++)
                 {
-                    closedPoints.Add(currentPoint);
-                    openPoints.Add(newPoint);
-                    currentPoint = newPoint;
+                    if (evaluatePoint(directions[i]) && !pointsToAdd.Contains(directions[i].pointPosition))
+                        pointsToAdd.Add(directions[i].pointPosition);
                 }
-                else closedPoints.Add(newPoint);
             }
 
-            PathSegment++;
+            closedPoints.AddRange(openPoints);
+            openPoints.Clear();
+            openPoints.AddRange(pointsToAdd);
+            openPoints.Sort((p1, p2) => getPoint(p1, cost).F.CompareTo(getPoint(p2, cost).F));
+
+            pointsToAdd.Clear();
+            cost++;
+
+            if (openPoints.Contains(end))
+                return true;
+            else if (openPoints.Count == 0)
+                return false;
         }
-
     }
-
-    Vector3[] getDirections(Vector3 currentPosition)
+    
+    public void ClearPath()
     {
-        Vector3[] directions = new Vector3[4];
+        openPoints.Clear();
+        closedPoints.Clear();
+        openPoints.Add(start);
+    }
+    #endregion
 
-        directions[0] = new Vector3(currentPosition.x + _sizeModifier, currentPosition.y, currentPosition.z);
-        directions[1] = new Vector3(currentPosition.x, currentPosition.y, currentPosition.z - _sizeModifier);
-        directions[2] = new Vector3(currentPosition.x - _sizeModifier, currentPosition.y, currentPosition.z);
-        directions[3] = new Vector3(currentPosition.x, currentPosition.y, currentPosition.z + _sizeModifier);
+    #region Get and Evaluate Directions
+    Points[] getDirections(Vector3 currentPosition, int count)
+    {
+        Points[] directions = new Points[4];
+
+        directions[0] = getPoint(new Vector3(currentPosition.x + _sizeModifier, currentPosition.y, currentPosition.z), count);
+        directions[1] = getPoint(new Vector3(currentPosition.x, currentPosition.y, currentPosition.z - _sizeModifier), count);
+        directions[2] = getPoint(new Vector3(currentPosition.x - _sizeModifier, currentPosition.y, currentPosition.z), count);
+        directions[3] = getPoint(new Vector3(currentPosition.x, currentPosition.y, currentPosition.z + _sizeModifier), count);
 
         return directions;
     }
 
-    void ClearPath()
+    bool evaluatePoint(Points point)
     {
-        openPoints.Clear();
-        closedPoints.Clear();   
+        if (closedPoints.Contains(point.pointPosition))
+            return false;
+
+        else if (openPoints.Contains(point.pointPosition))
+            return false;
+
+        else if (!gridPoints.Contains(point.pointPosition))
+            return false;
+
+        else if (Physics.CheckBox(point.pointPosition, Vector3.one / 2, transform.rotation, obstacleLayer))
+            return false;
+
+        else return true;
     }
-
-    Points getPoint(Vector3 pointPosition)
-    {
-        Points newPoint = new Points();
-
-        newPoint.H = GetH(pointPosition);
-        newPoint.G = PathSegment;
-        newPoint.F = GetF(newPoint);
-        newPoint.pointPosition = pointPosition;
-
-        return newPoint;
-    }
+    #endregion
 
     #region Generate Important Positions
+    public Vector3 getStartPos()
+    {
+        return start;
+    }
+
+    public Vector3 getEndPos()
+    {
+        return end;
+    }
+
     public void GetStartAndEndPositions(Vector3 startDoorPosition, Vector3 endDoorPosition)
     {
         start = getPointClosestToPosition(startDoorPosition);
@@ -122,6 +154,23 @@ public class PathGenerator : MonoBehaviour
     #endregion
 
     #region GetValues
+    Points getPoint(Vector3 pointPosition, int cost)
+    {
+        Points newPoint = new Points();
+
+        newPoint.H = GetH(pointPosition);
+        newPoint.G = cost;
+        newPoint.F = GetF(newPoint);
+        newPoint.pointPosition = pointPosition;
+
+        return newPoint;
+    }
+
+    public List<Vector3> getGridPoints()
+    {
+        return gridPoints;
+    }
+    
     public float GetH(Vector3 pointPosition)
     {
         return Vector3.Distance(pointPosition, end);
@@ -135,7 +184,7 @@ public class PathGenerator : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (!Application.isPlaying && drawPoints)
+        if (!Application.isPlaying && !drawPoints)
             return;
 
         for (int i = 0; i < gridPoints.Count; i++)
@@ -154,7 +203,14 @@ public class PathGenerator : MonoBehaviour
         {
             Gizmos.color = Color.red;
 
-            Gizmos.DrawCube(openPoints[i].pointPosition, Vector3.one / 2);
+            Gizmos.DrawCube(openPoints[i], Vector3.one / 2);
+        }
+
+        for (int i = 0; i < closedPoints.Count; i++)
+        {
+            Gizmos.color = Color.blue;
+
+            Gizmos.DrawCube(closedPoints[i], Vector3.one / 2);
         }
     }
 }
