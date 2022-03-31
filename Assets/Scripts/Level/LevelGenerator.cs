@@ -1,10 +1,13 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 [RequireComponent(typeof(PathGenerator))]
 public class LevelGenerator : MonoBehaviour
 {
+    public int roomsTraversalBeforeExitAmount;
+
     [SerializeField]
     float sizeModifier = 1;
 
@@ -12,8 +15,12 @@ public class LevelGenerator : MonoBehaviour
     GameObject floorTile, wallTile, door, block;
 
     [SerializeField]
+    Light roomDirectionalLight;
+
+    [SerializeField]
     Room[] rooms;
 
+    int roomsTraversed;
     GameObject _player;
     CharacterController _playerController;
     
@@ -80,8 +87,10 @@ public class LevelGenerator : MonoBehaviour
         int mapWidth = genRoomSize(room.roomWidthRange.x, room.roomWidthRange.y);
         int mapDepth = genRoomSize(room.roomDepthRange.x, room.roomDepthRange.y);
 
+        //Plasser rommet midt i scenen, og få et utgangspunkt for hvor objekter genereres
         Vector3 startPos = genStartPosition(mapWidth, mapDepth);
 
+        //Lag et grid pathfinding og objektplassering kan gå ut ifra
         PathGenerator._instance.GenerateGrid(mapWidth, mapDepth, startPos, sizeModifier);
         
         ///Place floor objects
@@ -94,7 +103,12 @@ public class LevelGenerator : MonoBehaviour
                 floorPool[i].SetActive(true);
                 floorPool[i].transform.position = spawnPos;
                 floorPool[i].transform.localScale *= sizeModifier;
-                floorPool[i].GetComponent<MeshRenderer>().material = room.floorMats[0];
+
+                int rand = Random.Range(0, room.floorMats.Length);
+                floorPool[i].GetComponent<MeshRenderer>().material = room.floorMats[rand];
+
+                floorPool[i].isStatic = true;
+                floorPool[i].GetComponent<NavMeshSurface>().BuildNavMesh();
 
                 i++;
             }
@@ -113,6 +127,8 @@ public class LevelGenerator : MonoBehaviour
                 wallPool[i].transform.localScale *= sizeModifier;
                 wallPool[i].GetComponent<MeshRenderer>().material = room.wallMats[0];
 
+                wallPool[i].isStatic = true;
+
                 i++;
             }
             //Generer venstreveggen i rommet
@@ -126,7 +142,11 @@ public class LevelGenerator : MonoBehaviour
                 wallPool[i].transform.position = leftSpawnPos;
                 wallPool[i].transform.eulerAngles = leftSpawnRotation;
                 wallPool[i].transform.localScale *= sizeModifier;
-                wallPool[i].GetComponent<MeshRenderer>().material = room.wallMats[0];
+
+                int rand = Random.Range(0, room.wallMats.Length);
+                wallPool[i].GetComponent<MeshRenderer>().material = room.wallMats[rand];
+
+                wallPool[i].isStatic = true;
 
                 i++;
             }
@@ -143,6 +163,8 @@ public class LevelGenerator : MonoBehaviour
                 wallPool[i].transform.localScale *= sizeModifier;
                 wallPool[i].GetComponent<MeshRenderer>().material = room.wallMats[0];
 
+                wallPool[i].isStatic = true;
+
                 i++;
             }
         }
@@ -150,7 +172,6 @@ public class LevelGenerator : MonoBehaviour
         ///Place doors
         for (int d = 0; d < 2; d++)
         {
-            int percentage = Random.Range(0, 100);
             int doorDepthPosition = Random.Range(0, mapDepth);
 
             doorPool[d].SetActive(true);
@@ -162,35 +183,52 @@ public class LevelGenerator : MonoBehaviour
             switch (d)
             {
                 case 0:
-                    doorPosition.x = startPos.x - 0.5f;
+                    if (_player.transform.position.x > 0)
+                        doorPosition.x = startPos.x - 0.5f;
+                    else doorPosition.x = startPos.x + (mapWidth - 0.5f);
                     break;
                 case 1:
-                    doorPosition.x = startPos.x + (mapWidth - 0.5f);
+                    if (_player.transform.position.x > 0)
+                        doorPosition.x = startPos.x + (mapWidth - 0.5f);
+                    else doorPosition.x = startPos.x - 0.5f;
+
+                    if (roomsTraversed >= roomsTraversalBeforeExitAmount)
+                        if (Random.Range(0, 101) <= 30)
+                        {
+                            doorPool[d].GetComponent<MeshRenderer>().material.color = Color.green;
+                            doorPool[d].tag = "Finish";
+                        }
+                        else
+                        {
+                            doorPool[d].GetComponent<MeshRenderer>().material.color = Color.white;
+                            doorPool[d].tag = "Untagged";
+                        }
                     break;
             }
 
             doorPosition.x *= sizeModifier;
 
             doorPool[d].transform.position = doorPosition;
+            doorPool[d].isStatic = true;
         }
 
-        PathGenerator._instance.GetStartAndEndPositions(doorPool[0].transform.position, doorPool[1].transform.position);
-
-        setPlayerPosition(PathGenerator._instance.getStartPos());
+        PathGenerator._instance.GetStartAndEndPositions(doorPool[0].transform.position, doorPool[1].transform.position);    //Retrieve start and end positions by getting the squares closest to the two doors
+        setPlayerPosition(PathGenerator._instance.getStartPos());                                                           //Set the player position to start
         
-        Music currentTempTrack = MusicManager._instance.GetPlayingTempTrack();
-
+        Music currentTempTrack = MusicManager._instance.GetPlayingTempTrack();                                              //Start playing the temporary track of each room you're in
         if (currentTempTrack != null)
         {
             if (currentTempTrack.TrackName != room.tempTrackToPlay)
                 MusicManager._instance.FadeBetweenTracks(currentTempTrack.TrackName, room.tempTrackToPlay, 0.5f);
-        }
+        }                                                                                   
         else MusicManager._instance.PlayTrack(room.tempTrackToPlay);
 
-        GenInterior();
+        roomDirectionalLight.color = room.lightColor;                                                                       //Set light color in room
+
+        GenInterior(room);                                                                                                      //Generate an interior to the room
     }
 
-    public void GenInterior()
+    public void GenInterior(Room room)
     {
         //Place whiteblocks around the room
         List<Vector3> grid = PathGenerator._instance.getGridPoints();
@@ -199,18 +237,16 @@ public class LevelGenerator : MonoBehaviour
 
         for (int i = 0; i < grid.Count; i++)
         {
-            int percentage = Random.Range(0, 100);
+            int percentage = Random.Range(0, 101);
 
-            if (percentage < 45 && grid[i] != PathGenerator._instance.getStartPos() && grid[i] != PathGenerator._instance.getEndPos())
+            if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != PathGenerator._instance.getStartPos() && grid[i] != PathGenerator._instance.getEndPos())
             {
                 blocksPool[i].SetActive(true);
                 blocksPool[i].transform.position = grid[i];
             }
         }
 
-        Debug.Log("Start pathfinding");
-
-        StartCoroutine(getPathAfterRoomGenerate());
+        StartCoroutine(getPathAfterRoomGenerate(room));
     }
 
     //Rens rommet før neste GenRoom
@@ -218,12 +254,14 @@ public class LevelGenerator : MonoBehaviour
     {
         for (int i = 0; i < floorPool.Count; i++)
         {
+            floorPool[i].isStatic = false;
             floorPool[i].SetActive(false);
             floorPool[i].transform.localScale = Vector3.one;
         }
 
         for (int i = 0; i < wallPool.Count; i++)
         {
+            wallPool[i].isStatic = false;
             wallPool[i].SetActive(false);
             wallPool[i].transform.eulerAngles = Vector3.zero;
             wallPool[i].transform.localScale = Vector3.one;
@@ -231,6 +269,7 @@ public class LevelGenerator : MonoBehaviour
 
         for (int i = 0; i < doorPool.Count; i++)
         {
+            doorPool[i].isStatic = false;
             doorPool[i].SetActive(false);
         }
     }
@@ -241,6 +280,13 @@ public class LevelGenerator : MonoBehaviour
         {
             blocksPool[i].SetActive(false);
         }
+    }
+
+    public void getRoomTraversal()
+    {
+        if (Vector3.Distance(_player.transform.position, doorPool[1].transform.position) <=
+            Vector3.Distance(_player.transform.position, doorPool[0].transform.position))
+            roomsTraversed++;   
     }
 
     //En funksjon for å sette spilleren på plass
@@ -275,15 +321,13 @@ public class LevelGenerator : MonoBehaviour
         return rooms[rand];
     }
 
-    IEnumerator getPathAfterRoomGenerate()
+    IEnumerator getPathAfterRoomGenerate(Room room)
     {
         yield return new WaitForSeconds(0.02f);
 
         if (PathGenerator._instance.GetPath() == false)
         {
-            //iterations++;
-            GenInterior();
-            //Debug.Log("Iterations = " + iterations);
+            GenInterior(room);
         }
     }
 }
@@ -306,4 +350,12 @@ public struct Room
     [Space(10)]
     public Material[] floorMats;
     public Material[] wallMats;
+
+    [Space(10)]
+    [Range(0, 100)]
+    public float roomObjectSpawnChancePerTile;
+    public GameObject[] roomObjects;
+
+    [Space(10)]
+    public Color lightColor;
 }

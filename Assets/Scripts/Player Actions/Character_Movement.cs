@@ -13,6 +13,7 @@ public class Character_Movement : MonoBehaviour
 
     public TransitionEffect effect;
     public UnityEvent onTransitionEvent;
+    public UnityEvent onEndGameEvent;
 
     public CharacterController controller;
 
@@ -21,7 +22,22 @@ public class Character_Movement : MonoBehaviour
         GetMovement();
 
         if (Input.GetKeyDown(KeyCode.H) && Physics.CheckSphere(transform.position, doorRange, doorLayer))
-            effect.Play(.5f, onTransitionEvent);
+        {
+            GetEnd();
+            effect.Play(1f, onTransitionEvent);
+        }
+    }
+
+    public void GetEnd()
+    {
+        GameObject endDoor = GameObject.FindGameObjectWithTag("Finish");
+
+        if (endDoor == null)
+            return;
+
+        //Enter endstate
+        Debug.Log("Gratla, du vant spillet");
+        onEndGameEvent.Invoke();
     }
 
     void GetMovement()
