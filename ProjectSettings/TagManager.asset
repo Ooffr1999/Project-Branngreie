@@ -4,7 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Enemy
+  - Exit_East
+  - Exit_West
+  - Exit_North
+  - Exit_South
   layers:
   - Default
   - TransparentFX
@@ -12,8 +15,8 @@ TagManager:
   - 
   - Water
   - UI
-  - 
-  - 
+  - Door
+  - Obstacle
   - 
   - 
   - 
@@ -41,4 +44,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 427807713
+    locked: 0
+  - name: Player
+    uniqueID: 3192921653
     locked: 0
