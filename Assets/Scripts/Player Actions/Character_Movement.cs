@@ -5,9 +5,21 @@ using UnityEngine.Events;
 
 public class Character_Movement : MonoBehaviour
 {
+    [Header("Movement")]
     public float moveSpeed;
     public float zLimit;
 
+    [Header("Jumping")]
+    public float jumpHeight;
+    public float gravityModifier;
+    public bool isGrounded;
+
+    [Space(5)]
+    public Transform groundCheck;
+    public float groundCheckRadius;
+    public LayerMask ground;
+
+    [Header("Door interaction settings")]
     public float doorRange;
     public LayerMask doorLayer;
 
@@ -17,8 +29,12 @@ public class Character_Movement : MonoBehaviour
 
     public CharacterController controller;
 
+    Vector3 moveForce;
+
     private void Update()
     {
+        Jump();
+
         GetMovement();
 
         if (Input.GetKeyDown(KeyCode.H) && Physics.CheckSphere(transform.position, doorRange, doorLayer))
@@ -49,5 +65,19 @@ public class Character_Movement : MonoBehaviour
 
         if (transform.position.z <= zLimit)
             transform.position = new Vector3(transform.position.x, transform.position.y, zLimit);
+    }
+
+    void Jump()
+    {
+        isGrounded = Physics.CheckSphere(groundCheck.position, groundCheckRadius, ground);
+
+        if (isGrounded)
+            moveForce.y = -2;
+        else moveForce.y += (Physics.gravity.y * gravityModifier) * Time.deltaTime;
+        
+        if (Input.GetKey(KeyCode.Space) && isGrounded)
+            moveForce.y = jumpHeight;
+
+        controller.Move(moveForce * Time.deltaTime);
     }
 }
