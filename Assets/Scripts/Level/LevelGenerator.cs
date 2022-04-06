@@ -6,6 +6,8 @@ using UnityEngine.AI;
 [RequireComponent(typeof(PathGenerator))]
 public class LevelGenerator : MonoBehaviour
 {
+    public LayerMask obstacleLayer;
+
     public int roomsTraversalBeforeExitAmount;
 
     [SerializeField]
@@ -19,6 +21,8 @@ public class LevelGenerator : MonoBehaviour
 
     [SerializeField]
     Room[] rooms;
+    [SerializeField]
+    LayerMask _obstacle;
 
     int roomsTraversed;
     GameObject _player;
@@ -32,12 +36,16 @@ public class LevelGenerator : MonoBehaviour
     [HideInInspector]
     public List<GameObject> doorPool = new List<GameObject>();
     List<GameObject> blocksPool = new List<GameObject>();
+
+    BoxCollider _roomBounds;
  
     //Til nå er det greit å generere poolet på Start og generere rommet etterpå så man har noe å se på
     private void Start()
     {
         _player = GameObject.Find("Player");
         _playerController = _player.GetComponent<CharacterController>();
+
+        _roomBounds = GetComponent<BoxCollider>();
 
         InitPool(200, 200, 10);
         GenRoom();
@@ -132,7 +140,7 @@ public class LevelGenerator : MonoBehaviour
                 i++;
             }
             //Generer venstreveggen i rommet
-            for (int b = 0; b < mapWidth; b++)
+            for (int b = 0; b < mapDepth; b++)
             {
                 Vector3 leftSpawnPos = new Vector3(startPos.x - 0.5f, 0.5f + h, startPos.z + b) * sizeModifier;
                 Vector3 leftSpawnRotation = new Vector3(0, -90, 0);
@@ -151,7 +159,7 @@ public class LevelGenerator : MonoBehaviour
                 i++;
             }
             //Generer høyreveggen i rommet
-            for (int b = 0; b < mapWidth; b++)
+            for (int b = 0; b < mapDepth; b++)
             {
                 Vector3 rightSpawnPos = new Vector3(startPos.x + mapWidth - 0.5f, 0.5f + h, startPos.z + b) * sizeModifier;
                 Vector3 rightSpawnRotation = new Vector3(0, 90, 0);
@@ -225,7 +233,20 @@ public class LevelGenerator : MonoBehaviour
 
         roomDirectionalLight.color = room.lightColor;                                                                       //Set light color in room
 
-        GenInterior(room);                                                                                                      //Generate an interior to the room
+        #region Set Bounds of Room Trigger
+        float boundsCenterX = 0;
+        float boundsCenterZ = 0;
+
+        if (mapWidth % 2 == 0)
+            boundsCenterX = 0.5f * sizeModifier;
+        if (mapDepth % 2 == 0)
+            boundsCenterZ = 0.5f * sizeModifier;
+
+        _roomBounds.center = new Vector3(-boundsCenterX, (room.roomHeight * sizeModifier) / 2, (mapDepth / 2) - boundsCenterZ);
+        _roomBounds.size = new Vector3(mapWidth * sizeModifier, room.roomHeight * sizeModifier, mapDepth * sizeModifier);
+        #endregion
+
+        GenInterior(room);                                                                                                  //Generate an interior to the room
     }
 
     public void GenInterior(Room room)
@@ -241,10 +262,25 @@ public class LevelGenerator : MonoBehaviour
 
             if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != PathGenerator._instance.getStartPos() && grid[i] != PathGenerator._instance.getEndPos())
             {
+                //if (!PathGenerator._instance.evaluatePoint(PathGenerator._instance.getPoint(grid[i], 0)))
+                    //return;
+
                 blocksPool[i].SetActive(true);
                 blocksPool[i].transform.position = grid[i];
+
+                //Check if object fits within bounds
+                BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
+
+                //blocksPool[i].SetActive(getColliderBounds(col));
+
+                /*
+                if (Physics.CheckBox(col.center, col.size, transform.rotation, _obstacle))
+                    blocksPool[i].SetActive(false);
+                */
             }
         }
+
+        //StartCoroutine(checkObjectPosition());
 
         StartCoroutine(getPathAfterRoomGenerate(room));
     }
@@ -321,14 +357,59 @@ public class LevelGenerator : MonoBehaviour
         return rooms[rand];
     }
 
+    bool getColliderBounds(BoxCollider col)
+    {
+        Vector3 current = col.transform.position;
+
+        if (!_roomBounds.bounds.Contains(current))
+            return false;
+
+        current.x -= col.bounds.extents.x;
+
+        if (!_roomBounds.bounds.Contains(current))
+            return false;
+
+        current.x += col.bounds.extents.x * 2;
+
+        if (!_roomBounds.bounds.Contains(current))
+            return false;
+
+        current.x -= col.bounds.extents.x;
+        current.z -= col.bounds.extents.z;
+
+        if (!_roomBounds.bounds.Contains(current))
+            return false;
+
+        current.z += col.bounds.extents.z * 2;
+
+        if (!_roomBounds.bounds.Contains(current))
+            return false;
+
+        return true;
+    }
+
     IEnumerator getPathAfterRoomGenerate(Room room)
     {
-        yield return new WaitForSeconds(0.02f);
+        yield return new WaitForFixedUpdate();
 
-        if (PathGenerator._instance.GetPath() == false)
+        if (PathGenerator._instance.CheckPath(PathGenerator._instance.start, PathGenerator._instance.end, obstacleLayer) == false)
         {
             GenInterior(room);
         }
+    }
+
+    IEnumerator checkObjectPosition()
+    {
+        yield return new WaitForSeconds(0.02f);
+        
+        for (int i = 0; i < blocksPool.Count; i++)
+        {
+            BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
+
+            if (Physics.CheckBox(col.center, col.size, transform.rotation, _obstacle))
+                blocksPool[i].SetActive(false);
+        }
+
     }
 }
 

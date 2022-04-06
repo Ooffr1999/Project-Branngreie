@@ -5,9 +5,6 @@ using UnityEngine.UI;
 
 public class Object_ChangeAngle : MonoBehaviour
 {
-    [Range(1, 100)]
-    public float changePerspectiveOffset;
-
     [Space(10)]
     public Sprite[] objectSprites;
 

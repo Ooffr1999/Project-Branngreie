@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4117232078353130474}
   - component: {fileID: 4117232078353130469}
   - component: {fileID: 4047076003783233374}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Sofa
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42ade9ef66dff3d4ca2674e134468fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  changePerspectiveOffset: 3
   objectSprites:
   - {fileID: 774861513052231880, guid: 1b5c65cf0cbec234b9db4faccd572f79, type: 3}
   - {fileID: -3087490627387726264, guid: c31809fd0ff80ef4ea8d1ccda9973290, type: 3}
@@ -59,10 +58,10 @@ BoxCollider:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4117232078353130468}
   m_Material: {fileID: 0}
-  m_IsTrigger: 0
+  m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.201901, y: 1.2019013, z: 1.201901}
+  m_Size: {x: 2, y: 1, z: 1}
   m_Center: {x: 0, y: 0.75, z: 0}
 --- !u!1 &4117232078706837142
 GameObject:
@@ -74,7 +73,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4117232078706837140}
   - component: {fileID: 4117232078706837143}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Sofa_Art
   m_TagString: Untagged
   m_Icon: {fileID: 0}

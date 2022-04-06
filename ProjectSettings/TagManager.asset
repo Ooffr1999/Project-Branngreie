@@ -1,14 +1,9 @@
-<<<<<<< HEAD
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags:
-  - Exit_East
-  - Exit_West
-  - Exit_North
-  - Exit_South
+  tags: []
   layers:
   - Default
   - TransparentFX
@@ -16,62 +11,8 @@ TagManager:
   - 
   - Water
   - UI
-  - Door
   - Obstacle
-  - Ground
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  - 
-  m_SortingLayers:
-  - name: Default
-    uniqueID: 0
-    locked: 0
-  - name: Background
-    uniqueID: 427807713
-    locked: 0
-  - name: Player
-    uniqueID: 3192921653
-    locked: 0
-=======
-%YAML 1.1
-%TAG !u! tag:unity3d.com,2011:
---- !u!78 &1
-TagManager:
-  serializedVersion: 2
-  tags:
-  - Exit_East
-  - Exit_West
-  - Exit_North
-  - Exit_South
-  layers:
-  - Default
-  - TransparentFX
-  - Ignore Raycast
-  - 
-  - Water
-  - UI
   - Door
-  - Obstacle
   - 
   - 
   - 
@@ -100,10 +41,3 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Background
-    uniqueID: 427807713
-    locked: 0
-  - name: Player
-    uniqueID: 3192921653
-    locked: 0
->>>>>>> main
