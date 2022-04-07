@@ -54,7 +54,7 @@ public class PathGenerator : MonoBehaviour
             {
                 if (openPoints[c].pointPosition == pointEnd)
                 {
-                    GetPath(pointStart);
+                    //GetPath(pointStart);
                     return true;
                     
                 }
@@ -68,10 +68,13 @@ public class PathGenerator : MonoBehaviour
                 }
             }
 
+            pointsToAdd = pointsToAdd.Distinct().ToList();
             closedPoints.AddRange(openPoints);
+            closedPoints = closedPoints.Distinct().ToList();
             openPoints.Clear();
             openPoints.AddRange(pointsToAdd);
             openPoints.Sort((p1, p2) => p1.F.CompareTo(p2.F));
+            openPoints = openPoints.Distinct().ToList();
 
             pointsToAdd.Clear();
             cost++;
