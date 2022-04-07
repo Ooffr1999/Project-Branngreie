@@ -7,7 +7,6 @@ using UnityEngine.AI;
 public class LevelGenerator : MonoBehaviour
 {
     public LayerMask obstacleLayer;
-
     public int roomsTraversalBeforeExitAmount;
 
     [SerializeField]
@@ -37,8 +36,13 @@ public class LevelGenerator : MonoBehaviour
     public List<GameObject> doorPool = new List<GameObject>();
     List<GameObject> blocksPool = new List<GameObject>();
 
+    [HideInInspector]
+    public Vector3 _roomStart, _roomEnd;
     BoxCollider _roomBounds;
- 
+    List<Vector3> grid;
+    [HideInInspector]
+    public PathGenerator _pathGenerator;
+
     //Til nå er det greit å generere poolet på Start og generere rommet etterpå så man har noe å se på
     private void Start()
     {
@@ -46,6 +50,8 @@ public class LevelGenerator : MonoBehaviour
         _playerController = _player.GetComponent<CharacterController>();
 
         _roomBounds = GetComponent<BoxCollider>();
+
+        _pathGenerator = GetComponent<PathGenerator>();
 
         InitPool(200, 200, 10);
         GenRoom();
@@ -99,7 +105,8 @@ public class LevelGenerator : MonoBehaviour
         Vector3 startPos = genStartPosition(mapWidth, mapDepth);
 
         //Lag et grid pathfinding og objektplassering kan gå ut ifra
-        PathGenerator._instance.GenerateGrid(mapWidth, mapDepth, startPos, sizeModifier);
+        GenerateGrid(mapWidth, mapDepth, startPos, sizeModifier);
+        _pathGenerator.InitPathFinding(grid, obstacleLayer, sizeModifier);
         
         ///Place floor objects
         int i = 0;
@@ -220,8 +227,11 @@ public class LevelGenerator : MonoBehaviour
             doorPool[d].isStatic = true;
         }
 
-        PathGenerator._instance.GetStartAndEndPositions(doorPool[0].transform.position, doorPool[1].transform.position);    //Retrieve start and end positions by getting the squares closest to the two doors
-        setPlayerPosition(PathGenerator._instance.getStartPos());                                                           //Set the player position to start
+        //Retrieve start and end positions by getting the squares closest to the two doors
+        _roomStart = getGridSquareFromPosition(doorPool[0].transform.position);
+        _roomEnd = getGridSquareFromPosition(doorPool[1].transform.position);
+
+        setPlayerPosition(_roomStart);                                                           //Set the player position to start
         
         Music currentTempTrack = MusicManager._instance.GetPlayingTempTrack();                                              //Start playing the temporary track of each room you're in
         if (currentTempTrack != null)
@@ -252,15 +262,13 @@ public class LevelGenerator : MonoBehaviour
     public void GenInterior(Room room)
     {
         //Place whiteblocks around the room
-        List<Vector3> grid = PathGenerator._instance.getGridPoints();
-
         CleanRoomInterior();
 
         for (int i = 0; i < grid.Count; i++)
         {
             int percentage = Random.Range(0, 101);
 
-            if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != PathGenerator._instance.getStartPos() && grid[i] != PathGenerator._instance.getEndPos())
+            if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != _roomStart && grid[i] != _roomEnd)
             {
                 //if (!PathGenerator._instance.evaluatePoint(PathGenerator._instance.getPoint(grid[i], 0)))
                     //return;
@@ -350,11 +358,21 @@ public class LevelGenerator : MonoBehaviour
         return Random.Range(minSize, maxSize);
     }
 
+    public void GenerateGrid(int mapWidth, int mapDepth, Vector3 startPosition, float sizeModifier)
+    {
+        grid = MapGridGenerator.GenerateMapGrid(mapWidth, mapDepth, startPosition, sizeModifier);
+    }
+
     //Generer en tilfeldig romtype og return den
     Room getRoom()
     {
         int rand = Random.Range(0, rooms.Length);
         return rooms[rand];
+    }
+
+    public Vector3 getGridSquareFromPosition(Vector3 position)
+    {
+        return MapGridGenerator.getGridSquareFromPosition(grid, position);
     }
 
     bool getColliderBounds(BoxCollider col)
@@ -391,9 +409,9 @@ public class LevelGenerator : MonoBehaviour
     IEnumerator getPathAfterRoomGenerate(Room room)
     {
         yield return new WaitForFixedUpdate();
-
-        if (PathGenerator._instance.CheckPath(PathGenerator._instance.start, PathGenerator._instance.end, obstacleLayer) == false)
-        {
+        
+        if (_pathGenerator.CheckPath(_roomStart, _roomEnd) == false)
+        {   
             GenInterior(room);
         }
     }

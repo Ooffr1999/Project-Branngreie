@@ -624,6 +624,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   controller: {fileID: 936808783}
+  _levelGenerator: {fileID: 1582068022}
 --- !u!143 &936808783
 CharacterController:
   m_ObjectHideFlags: 0
@@ -857,7 +858,7 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 908993ad33222314d8931a049e751df0, type: 2}
     wallMats:
     - {fileID: 2100000, guid: 7a92381ba677a744e9d4e21295333311, type: 2}
-    roomObjectSpawnChancePerTile: 56.5
+    roomObjectSpawnChancePerTile: 41.8
     roomObjects: []
     lightColor: {r: 0, g: 0.09929433, b: 0.9137255, a: 0}
   - name: Bath Room
@@ -870,7 +871,7 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 5e50ef35ff083f3438168f0595221afb, type: 2}
     wallMats:
     - {fileID: 2100000, guid: f07055e09312a6742bc30fd82d719630, type: 2}
-    roomObjectSpawnChancePerTile: 52.3
+    roomObjectSpawnChancePerTile: 11.8
     roomObjects: []
     lightColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 0}
   _obstacle:
@@ -879,6 +880,9 @@ MonoBehaviour:
   floorPool: []
   wallPool: []
   doorPool: []
+  _roomStart: {x: 0, y: 0, z: 0}
+  _roomEnd: {x: 0, y: 0, z: 0}
+  _pathGenerator: {fileID: 0}
 --- !u!4 &1582068023
 Transform:
   m_ObjectHideFlags: 0
@@ -905,10 +909,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22690e0437fa32b489c3c2c15feabca2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  start: {x: 5, y: 1, z: 3}
-  end: {x: 7, y: 1, z: 2}
   openPoints: []
   closedPoints: []
+  pathPoints: []
 --- !u!65 &1582068025
 BoxCollider:
   m_ObjectHideFlags: 0

@@ -28,24 +28,14 @@ public class Character_Movement : MonoBehaviour
     public UnityEvent onEndGameEvent;
 
     public CharacterController controller;
-
-    public LayerMask obstacle;
+    public LevelGenerator _levelGenerator;
 
     Vector3 moveForce;
-    PathGenerator _pathGenerator;
-
-    private void Start()
-    {
-        _pathGenerator = PathGenerator._instance;
-
-        if (_pathGenerator == null)
-            Debug.LogError("Could not find PathGenerator. Make sure there is one in the scene");
-    }
 
     private void Update()
-    {
+    { 
         if (Input.GetKeyDown(KeyCode.K))
-            _pathGenerator.CheckPath(GetPlayerPositionOnGrid(), _pathGenerator.end, obstacle);
+            _levelGenerator._pathGenerator.GetPath(GetPlayerPositionOnGrid(), _levelGenerator._roomEnd);
 
         Jump();
 
@@ -97,6 +87,6 @@ public class Character_Movement : MonoBehaviour
 
     public Vector3 GetPlayerPositionOnGrid()
     {
-        return _pathGenerator.getPointClosestToPosition(transform.position);
+        return _levelGenerator.getGridSquareFromPosition(transform.position);
     }
 }
