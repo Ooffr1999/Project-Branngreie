@@ -34,9 +34,6 @@ public class Character_Movement : MonoBehaviour
 
     private void Update()
     { 
-        if (Input.GetKeyDown(KeyCode.K))
-            _levelGenerator._pathGenerator.GetPath(GetPlayerPositionOnGrid(), _levelGenerator._roomEnd);
-
         Jump();
 
         GetMovement();
