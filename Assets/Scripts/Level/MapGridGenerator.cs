@@ -25,4 +25,17 @@ public static class MapGridGenerator
 
         return mapGridAreas;
     }
+
+    public static Vector3 getGridSquareFromPosition(List<Vector3> grid, Vector3 position)
+    {
+        Vector3 closestPoint = Vector3.zero;
+
+        for (int i = 0; i < grid.Count; i++)
+        {
+            if (Vector3.Distance(grid[i], position) < Vector3.Distance(closestPoint, position))
+                closestPoint = grid[i];
+        }
+
+        return closestPoint;
+    }
 }

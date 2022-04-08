@@ -675,6 +675,7 @@ Transform:
   m_Children:
   - {fileID: 1650075764}
   - {fileID: 519420032}
+  - {fileID: 1425681816}
   m_Father: {fileID: 0}
   m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -690,12 +691,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3e617a40244601541af91a62936d6eee, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 5
+  moveSpeed: 3.5
   zLimit: -0.5
+  jumpHeight: 3.25
+  gravityModifier: 1.5
+  isGrounded: 0
+  groundCheck: {fileID: 1425681816}
+  groundCheckRadius: 0.1
+  ground:
+    serializedVersion: 2
+    m_Bits: 256
   doorRange: 0.75
   doorLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 128
   effect: {fileID: 519420030}
   onTransitionEvent:
     m_PersistentCalls:
@@ -752,6 +761,7 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   controller: {fileID: 936808783}
+  _levelGenerator: {fileID: 1582068022}
 --- !u!143 &936808783
 CharacterController:
   m_ObjectHideFlags: 0
@@ -844,6 +854,36 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &1425681815
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1425681816}
+  m_Layer: 0
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1425681816
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1425681815}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: -0.657, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 936808781}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1483970212
 GameObject:
   m_ObjectHideFlags: 0
@@ -915,6 +955,7 @@ GameObject:
   - component: {fileID: 1582068023}
   - component: {fileID: 1582068022}
   - component: {fileID: 1582068024}
+  - component: {fileID: 1582068025}
   m_Layer: 0
   m_Name: LevelGenerator
   m_TagString: Untagged
@@ -934,7 +975,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bacf217d43b8ec047b9f4518aa0f487a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  roomsTraversalBeforeExitAmount: 5
+  obstacleLayer:
+    serializedVersion: 2
+    m_Bits: 64
+  roomsTraversalBeforeExitAmount: 7
   sizeModifier: 1.5
   floorTile: {fileID: 1779311664430497020, guid: 3798c8d6615722d4e95ad7f92a6fbc61, type: 3}
   wallTile: {fileID: 5644916587572147699, guid: fae9eb5a33e54314aad562510f8eacdd, type: 3}
@@ -943,7 +987,7 @@ MonoBehaviour:
   roomDirectionalLight: {fileID: 902322436}
   rooms:
   - name: Living Room
-    roomWidthRange: {x: 6, y: 17}
+    roomWidthRange: {x: 5, y: 17}
     roomDepthRange: {x: 4, y: 7}
     roomHeight: 3
     tempTrackToPlay: Livingroom Ambience
@@ -951,7 +995,7 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 908993ad33222314d8931a049e751df0, type: 2}
     wallMats:
     - {fileID: 2100000, guid: 7a92381ba677a744e9d4e21295333311, type: 2}
-    roomObjectSpawnChancePerTile: 36.3
+    roomObjectSpawnChancePerTile: 41.8
     roomObjects: []
     lightColor: {r: 0, g: 0.09929433, b: 0.9137255, a: 0}
   - name: Bath Room
@@ -964,12 +1008,18 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 5e50ef35ff083f3438168f0595221afb, type: 2}
     wallMats:
     - {fileID: 2100000, guid: f07055e09312a6742bc30fd82d719630, type: 2}
-    roomObjectSpawnChancePerTile: 60.3
+    roomObjectSpawnChancePerTile: 11.8
     roomObjects: []
     lightColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 0}
+  _obstacle:
+    serializedVersion: 2
+    m_Bits: 64
   floorPool: []
   wallPool: []
   doorPool: []
+  _roomStart: {x: 0, y: 0, z: 0}
+  _roomEnd: {x: 0, y: 0, z: 0}
+  _pathGenerator: {fileID: 0}
 --- !u!4 &1582068023
 Transform:
   m_ObjectHideFlags: 0
@@ -996,13 +1046,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22690e0437fa32b489c3c2c15feabca2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  drawPoints: 0
-  start: {x: 5, y: 1, z: 3}
-  end: {x: 7, y: 1, z: 2}
-  obstacleLayer:
-    serializedVersion: 2
-    m_Bits: 128
-  gridPoints: []
   openPoints: []
   closedPoints: []
 --- !u!1 &1644878742

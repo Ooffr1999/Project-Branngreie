@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 4488360009854066120}
   - component: {fileID: 4488360009854066119}
   - component: {fileID: 4557811366206812540}
-  m_Layer: 7
+  m_Layer: 6
   m_Name: Chair
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -45,7 +45,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 42ade9ef66dff3d4ca2674e134468fab, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  changePerspectiveOffset: 3
   objectSprites:
   - {fileID: 3605590684344487806, guid: d737f223ee4a77f43bb667e4b80bcb4c, type: 3}
   - {fileID: -6529436705977176816, guid: 851c510117a26604ebbb08a23508ae44, type: 3}
