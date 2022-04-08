@@ -6,10 +6,10 @@ using UnityEngine;
 
 public class PathGenerator : MonoBehaviour
 {
-    public List<Points> openPoints = new List<Points>();
-    public List<Points> closedPoints = new List<Points>();
+    List<Points> openPoints = new List<Points>();
+    List<Points> closedPoints = new List<Points>();
 
-    public List<Points> pathPoints = new List<Points>();
+    List<Points> pathPoints = new List<Points>();
 
     List<Vector3> _grid;
     LayerMask _obstacleLayer;

@@ -75,8 +75,10 @@ public class Enemy_Lampe : MonoBehaviour
         agent.SetDestination(transform.position);
 
         transform.LookAt(player);
+
         if (!alreadyAttacked)
         {
+
             alreadyAttacked = true;
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
         }

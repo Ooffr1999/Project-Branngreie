@@ -16,10 +16,10 @@ MonoBehaviour:
   m_AdvancedMode: 0
   type:
     m_OverrideState: 1
-    m_Value: 2
+    m_Value: 6
   intensity:
     m_OverrideState: 1
-    m_Value: 0.685
+    m_Value: 0.927
     min: 0
     max: 1
   response:
@@ -92,6 +92,23 @@ MonoBehaviour:
     m_Value: 0
     min: -180
     max: 180
+--- !u!114 &-2219274739399376062
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 97c23e3b12dc18c42a140437e53d3951, type: 3}
+  m_Name: Tonemapping
+  m_EditorClassIdentifier: 
+  active: 0
+  m_AdvancedMode: 0
+  mode:
+    m_OverrideState: 1
+    m_Value: 2
 --- !u!114 &11400000
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -108,6 +125,8 @@ MonoBehaviour:
   - {fileID: 1208829008291645609}
   - {fileID: -4014943205830066377}
   - {fileID: -6274901075745471198}
+  - {fileID: 4509213349888034795}
+  - {fileID: -2219274739399376062}
 --- !u!114 &1208829008291645609
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -160,3 +179,27 @@ MonoBehaviour:
     m_OverrideState: 1
     m_Value: 0
     min: 0
+--- !u!114 &4509213349888034795
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb60a22f311433c4c962b888d1393f88, type: 3}
+  m_Name: PaniniProjection
+  m_EditorClassIdentifier: 
+  active: 0
+  m_AdvancedMode: 0
+  distance:
+    m_OverrideState: 1
+    m_Value: 0.5
+    min: 0
+    max: 1
+  cropToFit:
+    m_OverrideState: 1
+    m_Value: 1
+    min: 0
+    max: 1
