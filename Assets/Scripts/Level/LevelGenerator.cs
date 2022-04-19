@@ -9,8 +9,7 @@ public class LevelGenerator : MonoBehaviour
     public LayerMask obstacleLayer;
     public int roomsTraversalBeforeExitAmount;
 
-    [SerializeField]
-    float sizeModifier = 1;
+    public float sizeModifier = 1;
 
     [SerializeField]
     GameObject floorTile, wallTile, door, block;
@@ -39,9 +38,12 @@ public class LevelGenerator : MonoBehaviour
     [HideInInspector]
     public Vector3 _roomStart, _roomEnd;
     BoxCollider _roomBounds;
-    List<Vector3> grid;
+    [HideInInspector]
+    public List<Vector3> grid;
     [HideInInspector]
     public PathGenerator _pathGenerator;
+    [HideInInspector]
+    public FireManager _fireManager;
 
     //Til nå er det greit å generere poolet på Start og generere rommet etterpå så man har noe å se på
     private void Start()
@@ -52,13 +54,14 @@ public class LevelGenerator : MonoBehaviour
         _roomBounds = GetComponent<BoxCollider>();
 
         _pathGenerator = GetComponent<PathGenerator>();
+        _fireManager = GetComponent<FireManager>();
 
-        InitPool(200, 200, 10);
+        InitPool(200, 200, 10, 200);
         GenRoom();
     }
 
     //Generer et Pool til gulv og et Pool til vegger
-    void InitPool(int floorPoolSize, int wallPoolSize, int doorPoolSize)
+    void InitPool(int floorPoolSize, int wallPoolSize, int doorPoolSize, int fireSize)
     {
         //Generate floor tiles to the floorpool
         for (int i = 0; i < floorPoolSize; i++)
@@ -91,6 +94,9 @@ public class LevelGenerator : MonoBehaviour
             blocksPool[blocksPool.Count - 1].SetActive(false);
             blocksPool[blocksPool.Count - 1].transform.parent = this.transform;
         }
+
+        //Generate fire for the fireManager
+        _fireManager.InitPool(fireSize);
     }
 
     //Generer selve rommet
@@ -291,6 +297,9 @@ public class LevelGenerator : MonoBehaviour
         //StartCoroutine(checkObjectPosition());
 
         StartCoroutine(getPathAfterRoomGenerate(room));
+
+        //Initialize fire
+        _fireManager.InitFire();
     }
 
     //Rens rommet før neste GenRoom
@@ -323,6 +332,11 @@ public class LevelGenerator : MonoBehaviour
         for (int i = 0; i < blocksPool.Count; i++)
         {
             blocksPool[i].SetActive(false);
+        }
+
+        for (int i = 0; i < _fireManager.firePool.Count; i++)
+        {
+            _fireManager.firePool[i].SetActive(false);
         }
     }
 
@@ -373,6 +387,18 @@ public class LevelGenerator : MonoBehaviour
     public Vector3 getGridSquareFromPosition(Vector3 position)
     {
         return MapGridGenerator.getGridSquareFromPosition(grid, position);
+    }
+
+    public Vector3 getRandomRoomSquare()
+    {
+        int rand = Random.Range(0, grid.Count);
+
+        if (grid[rand] == getGridSquareFromPosition(doorPool[0].transform.position))
+            rand++;
+        if (grid[rand] == getGridSquareFromPosition(doorPool[1].transform.position))
+            rand++;
+
+        return getGridSquareFromPosition(grid[rand]);
     }
 
     bool getColliderBounds(BoxCollider col)
