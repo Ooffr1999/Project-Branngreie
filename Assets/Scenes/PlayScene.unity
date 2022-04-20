@@ -1047,7 +1047,7 @@ MonoBehaviour:
   floorTile: {fileID: 1779311664430497020, guid: 3798c8d6615722d4e95ad7f92a6fbc61, type: 3}
   wallTile: {fileID: 5644916587572147699, guid: fae9eb5a33e54314aad562510f8eacdd, type: 3}
   door: {fileID: 885276218755831945, guid: d3375608bf89bb145bd476a3d06f397c, type: 3}
-  block: {fileID: 4117232078353130468, guid: 4bf153bd90e96f9489fc2533e668b299, type: 3}
+  block: {fileID: 4488360009854066118, guid: 6f29c558d2ba2564aa567299113d3226, type: 3}
   roomDirectionalLight: {fileID: 902322436}
   rooms:
   - name: Living Room
@@ -1059,9 +1059,10 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 908993ad33222314d8931a049e751df0, type: 2}
     wallMats:
     - {fileID: 2100000, guid: 7a92381ba677a744e9d4e21295333311, type: 2}
-    roomObjectSpawnChancePerTile: 7.2
+    roomObjectSpawnChancePerTile: 27.7
     roomObjects: []
     lightColor: {r: 0, g: 0.09929433, b: 0.9137255, a: 0}
+    fireAmountRange: {x: 3, y: 6}
   - name: Bath Room
     roomWidthRange: {x: 2, y: 6}
     roomDepthRange: {x: 2, y: 4}
@@ -1072,9 +1073,10 @@ MonoBehaviour:
     - {fileID: 2100000, guid: 5e50ef35ff083f3438168f0595221afb, type: 2}
     wallMats:
     - {fileID: 2100000, guid: f07055e09312a6742bc30fd82d719630, type: 2}
-    roomObjectSpawnChancePerTile: 24.2
+    roomObjectSpawnChancePerTile: 52.7
     roomObjects: []
     lightColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 0}
+    fireAmountRange: {x: 1, y: 2}
   _obstacle:
     serializedVersion: 2
     m_Bits: 64
@@ -1123,8 +1125,8 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
+  m_Size: {x: 21, y: 4.5, z: 6}
+  m_Center: {x: -0.75, y: 2.25, z: 1.25}
 --- !u!114 &1582068026
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1137,7 +1139,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8669c71b00024b242981aeac40a7ec46, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fireSpreadTime: 5
   Fire_Prefab: {fileID: 7624312767055860580, guid: 7d92140ab8f5ffc4b8137c5a831f94bf, type: 3}
+  whatIsFire:
+    serializedVersion: 2
+    m_Bits: 256
+  firePool: []
 --- !u!1 &1650075763
 GameObject:
   m_ObjectHideFlags: 0

@@ -6,7 +6,6 @@ using UnityEngine.AI;
 [RequireComponent(typeof(PathGenerator))]
 public class LevelGenerator : MonoBehaviour
 {
-    public LayerMask obstacleLayer;
     public int roomsTraversalBeforeExitAmount;
 
     public float sizeModifier = 1;
@@ -56,7 +55,7 @@ public class LevelGenerator : MonoBehaviour
         _pathGenerator = GetComponent<PathGenerator>();
         _fireManager = GetComponent<FireManager>();
 
-        InitPool(200, 200, 10, 200);
+        InitPool(200, 200, 2, 200);
         GenRoom();
     }
 
@@ -112,7 +111,7 @@ public class LevelGenerator : MonoBehaviour
 
         //Lag et grid pathfinding og objektplassering kan gå ut ifra
         GenerateGrid(mapWidth, mapDepth, startPos, sizeModifier);
-        _pathGenerator.InitPathFinding(grid, obstacleLayer, sizeModifier);
+        _pathGenerator.InitPathFinding(grid, _obstacle, sizeModifier);
         
         ///Place floor objects
         int i = 0;
@@ -258,48 +257,38 @@ public class LevelGenerator : MonoBehaviour
         if (mapDepth % 2 == 0)
             boundsCenterZ = 0.5f * sizeModifier;
 
-        _roomBounds.center = new Vector3(-boundsCenterX, (room.roomHeight * sizeModifier) / 2, (mapDepth / 2) - boundsCenterZ);
-        _roomBounds.size = new Vector3(mapWidth * sizeModifier, room.roomHeight * sizeModifier, mapDepth * sizeModifier);
+        //_roomBounds.center = new Vector3(-boundsCenterX, (room.roomHeight * sizeModifier) / 2, (mapDepth / 2) - boundsCenterZ);
+        //_roomBounds.size = new Vector3(mapWidth * sizeModifier, room.roomHeight * sizeModifier, mapDepth * sizeModifier);
         #endregion
 
         GenInterior(room);                                                                                                  //Generate an interior to the room
+
+        _fireManager.InitFire(room.fireAmountRange, mapWidth, mapDepth);
     }
 
     public void GenInterior(Room room)
     {
         //Place whiteblocks around the room
         CleanRoomInterior();
-
+        /*
         for (int i = 0; i < grid.Count; i++)
         {
             int percentage = Random.Range(0, 101);
 
             if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != _roomStart && grid[i] != _roomEnd)
             {
-                //if (!PathGenerator._instance.evaluatePoint(PathGenerator._instance.getPoint(grid[i], 0)))
-                    //return;
-
+                BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
+                
                 blocksPool[i].SetActive(true);
                 blocksPool[i].transform.position = grid[i];
-
-                //Check if object fits within bounds
-                BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
-
-                //blocksPool[i].SetActive(getColliderBounds(col));
-
-                /*
-                if (Physics.CheckBox(col.center, col.size, transform.rotation, _obstacle))
-                    blocksPool[i].SetActive(false);
-                */
+                
             }
         }
+        */
 
-        //StartCoroutine(checkObjectPosition());
+        StartCoroutine(checkObjectPosition(room));
 
         StartCoroutine(getPathAfterRoomGenerate(room));
-
-        //Initialize fire
-        _fireManager.InitFire();
     }
 
     //Rens rommet før neste GenRoom
@@ -334,10 +323,7 @@ public class LevelGenerator : MonoBehaviour
             blocksPool[i].SetActive(false);
         }
 
-        for (int i = 0; i < _fireManager.firePool.Count; i++)
-        {
-            _fireManager.firePool[i].SetActive(false);
-        }
+        _fireManager.ClearFire();
     }
 
     public void getRoomTraversal()
@@ -401,37 +387,6 @@ public class LevelGenerator : MonoBehaviour
         return getGridSquareFromPosition(grid[rand]);
     }
 
-    bool getColliderBounds(BoxCollider col)
-    {
-        Vector3 current = col.transform.position;
-
-        if (!_roomBounds.bounds.Contains(current))
-            return false;
-
-        current.x -= col.bounds.extents.x;
-
-        if (!_roomBounds.bounds.Contains(current))
-            return false;
-
-        current.x += col.bounds.extents.x * 2;
-
-        if (!_roomBounds.bounds.Contains(current))
-            return false;
-
-        current.x -= col.bounds.extents.x;
-        current.z -= col.bounds.extents.z;
-
-        if (!_roomBounds.bounds.Contains(current))
-            return false;
-
-        current.z += col.bounds.extents.z * 2;
-
-        if (!_roomBounds.bounds.Contains(current))
-            return false;
-
-        return true;
-    }
-
     IEnumerator getPathAfterRoomGenerate(Room room)
     {
         yield return new WaitForFixedUpdate();
@@ -442,18 +397,35 @@ public class LevelGenerator : MonoBehaviour
         }
     }
 
-    IEnumerator checkObjectPosition()
+    IEnumerator checkObjectPosition(Room room)
     {
-        yield return new WaitForSeconds(0.02f);
+        List<GameObject> blockList = new List<GameObject>(); 
+
+        for (int i = 0; i < grid.Count; i++)
+        {
+            int percentage = Random.Range(0, 101);
+
+            if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != _roomStart && grid[i] != _roomEnd)
+            {
+                blocksPool[i].SetActive(true);
+                blocksPool[i].transform.position = grid[i];
+                blockList.Add(blocksPool[i]);
+            }
+        }
+
+        yield return new WaitForSeconds(2);
+
         
         for (int i = 0; i < blocksPool.Count; i++)
         {
             BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
 
-            if (Physics.CheckBox(col.center, col.size, transform.rotation, _obstacle))
-                blocksPool[i].SetActive(false);
+            if (Physics.CheckBox(blocksPool[i].transform.position, col.size, blocksPool[i].transform.localRotation, _obstacle))
+            {
+                Debug.Log(col.size);
+                blockList[i].SetActive(false);
+            }
         }
-
     }
 }
 
@@ -483,4 +455,7 @@ public struct Room
 
     [Space(10)]
     public Color lightColor;
+
+    [Space(10)]
+    public Vector2Int fireAmountRange;
 }

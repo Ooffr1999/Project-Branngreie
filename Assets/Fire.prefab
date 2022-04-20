@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7624312765179520098}
   - component: {fileID: 7624312765179520099}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Point Light
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -104,7 +104,7 @@ GameObject:
   - component: {fileID: 7624312765328150920}
   - component: {fileID: 7624312765328150926}
   - component: {fileID: 7624312765328150921}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Particle System
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4910,7 +4910,8 @@ GameObject:
   - component: {fileID: 7624312767055860584}
   - component: {fileID: 7624312767055860587}
   - component: {fileID: 7624312767055860586}
-  m_Layer: 0
+  - component: {fileID: 1248013590342860395}
+  m_Layer: 8
   m_Name: Fire
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4925,7 +4926,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 7624312767055860580}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.5, z: 0}
+  m_LocalPosition: {x: 0, y: 0.69, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 7624312765179520098}
@@ -4983,3 +4984,16 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!65 &1248013590342860395
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7624312767055860580}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 1
+  serializedVersion: 2
+  m_Size: {x: 1, y: 1, z: 1}
+  m_Center: {x: 0, y: 0, z: 0}

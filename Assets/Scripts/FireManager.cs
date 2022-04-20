@@ -1,14 +1,20 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 [RequireComponent(typeof(LevelGenerator))]
 public class FireManager : MonoBehaviour
 {
+    public float fireSpreadTime;
     public GameObject Fire_Prefab;
+    public LayerMask whatIsFire;
     [HideInInspector]
     public List<GameObject> firePool;
+    GameObject[,] stageFire;
 
+    int fireActivatedAmount = 0;
+    int width, depth;
     LevelGenerator _levelGenerator;
 
     private void Awake()
@@ -24,31 +30,111 @@ public class FireManager : MonoBehaviour
             firePool.Add(fire);
             firePool[firePool.Count - 1].SetActive(false);
             firePool[firePool.Count - 1].transform.parent = this.transform;
+            firePool[firePool.Count - 1].transform.localScale *= _levelGenerator.sizeModifier;
         }
     }
 
-    public void InitFire()
+    public void InitFire(Vector2Int initFireAmountRange, int mapWidth, int mapDepth)
     {
-        int startFireAmount = Random.Range(0, 10);
+        stageFire = new GameObject[mapWidth, mapDepth];
+        int index = 0;
 
-        for (int i = 0; i < startFireAmount; i++)
+        //Place Fire
+        for (int y = 0; y < mapDepth; y++)
         {
-            Vector3 pos = _levelGenerator.getRandomRoomSquare();
-            pos.y += _levelGenerator.sizeModifier / 2;
+            for (int x = 0; x < mapWidth; x++)
+            {
+                stageFire[x, y] = firePool[index];
+                stageFire[x, y].transform.position = new Vector3((-(mapWidth / 2) + x) * _levelGenerator.sizeModifier, stageFire[x, y].transform.position.y, y * _levelGenerator.sizeModifier);
 
-            firePool[i].transform.position = pos;
-            firePool[i].transform.localScale = Vector3.one * _levelGenerator.sizeModifier;
-            firePool[i].SetActive(true);
+                index++;
+            }
+        }
+
+        int rand = Random.Range(initFireAmountRange.x, initFireAmountRange.y);
+
+        for (int i = 0; i < rand; i++)
+        {
+            int x = Random.Range(0, mapWidth);
+            int y = Random.Range(0, mapDepth);
+
+            stageFire[x, y].SetActive(true);
+        }
+
+        width = mapWidth;
+        depth = mapDepth;
+
+        StopCoroutine(spreadFire());
+        StartCoroutine(spreadFire());
+    }
+
+    public Vector2Int[] FireSpreadDirections(int x, int y)
+    {
+        Vector2Int[] directions = new Vector2Int[4];
+
+        directions[0] = new Vector2Int(x + 1, y);
+        directions[1] = new Vector2Int(x, y - 1);
+        directions[2] = new Vector2Int(x - 1, y);
+        directions[3] = new Vector2Int(x, y + 1);
+
+        return directions;
+    }
+
+    public void ClearFire()
+    {
+        fireActivatedAmount = 0;
+
+        for (int y = 0; y < depth; y++)
+        {
+            for(int x = 0; x < width; x++)
+            {
+                stageFire[x, y].SetActive(false);
+            }
         }
     }
 
-    void ClearFire()
+    IEnumerator spreadFire()
     {
-        for (int i = 0; i < firePool.Count; i++)
+        while (true)
         {
-            firePool[i].transform.position = Fire_Prefab.transform.position;
-            firePool[i].transform.rotation = Fire_Prefab.transform.rotation;
-            firePool[i].transform.localScale = Vector3.one * _levelGenerator.sizeModifier;
+            yield return new WaitForSeconds(fireSpreadTime);
+
+            List<GameObject> stageFireList = new List<GameObject>();
+
+            for (int y = 0; y < depth; y++)
+            {
+                for (int x = 0; x < width; x++)
+                {
+                    if (stageFire[x, y].activeSelf == true)
+                    {
+                        if (x + 1 < width)
+                            stageFireList.Add(stageFire[x + 1, y]);
+
+                        Debug.Log("Placed fire right");
+
+                        if (y + 1 < depth)
+                            stageFireList.Add(stageFire[x, y + 1]);
+
+                        Debug.Log("Placed fire up");
+
+                        if (x - 1 >= 0)
+                            stageFireList.Add(stageFire[x - 1, y]);
+
+                        Debug.Log("Placed fire left");
+
+                        if (y - 1 >= 0)
+                            stageFireList.Add(stageFire[x, y - 1]);
+
+                        Debug.Log("Placed fire down");
+                    }
+
+                }
+            }
+
+            for (int i = 0; i < stageFireList.Count; i++)
+            {
+                stageFireList[i].SetActive(true);
+            }
         }
     }
 }

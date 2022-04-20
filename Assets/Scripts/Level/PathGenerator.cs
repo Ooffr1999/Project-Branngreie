@@ -48,55 +48,6 @@ public class PathGenerator : MonoBehaviour
             openPoints.Remove(openPoints[0]);
             openPoints.Sort((p1, p2) => p1.F.CompareTo(p2.F));
         }
-
-        #region Old Pathfind
-        /*
-        ClearPath();
-
-        openPoints.Add(getPoint(pointStart, 0));
-
-        int cost = 1;
-
-        while (true)
-        {
-            List<Points> pointsToAdd = new List<Points>();
-
-            for (int c = 0; c < openPoints.Count; c++)
-            {
-                if (openPoints[c].pointPosition == pointEnd)
-                {
-                    //GetPath(pointStart);
-                    return true;
-                    
-                }
-
-                Points[] directions = getDirections(openPoints[c].pointPosition, openPoints[c].pointPosition, cost);
-
-                for (int i = 0; i < 4; i++)
-                {
-                    if (evaluatePoint(directions[i], obstacleLayer) && !pointsToAdd.Contains(directions[i]))
-                        pointsToAdd.Add(directions[i]);
-                }
-            }
-
-            pointsToAdd = pointsToAdd.Distinct().ToList();
-            closedPoints.AddRange(openPoints);
-            closedPoints = closedPoints.Distinct().ToList();
-            openPoints.Clear();
-            openPoints.AddRange(pointsToAdd);
-            openPoints.Sort((p1, p2) => p1.F.CompareTo(p2.F));
-            openPoints = openPoints.Distinct().ToList();
-
-            pointsToAdd.Clear();
-            cost++;
-
-            if (openPoints.Count == 0)
-            {
-                return false;
-            }
-        }
-        */
-        #endregion
     }
 
     public List<Points> GetPath(Vector3 pointStart, Vector3 pointEnd)
