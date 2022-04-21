@@ -19,6 +19,10 @@ public class Character_Movement : MonoBehaviour
     public float groundCheckRadius;
     public LayerMask ground;
 
+    [Header("Anim")]
+    public Animator _animator;
+    public SpriteRenderer _spriteRenderer;
+
     [Header("Door interaction settings")]
     public float doorRange;
     public LayerMask doorLayer;
@@ -62,10 +66,25 @@ public class Character_Movement : MonoBehaviour
         float moveX = Input.GetAxis("Horizontal") * moveSpeed * Time.deltaTime;
         float moveZ = Input.GetAxis("Vertical") * moveSpeed * Time.deltaTime;
 
+        
+
         controller.Move(transform.forward * moveZ + transform.right * moveX);
 
         if (transform.position.z <= zLimit)
             transform.position = new Vector3(transform.position.x, transform.position.y, zLimit);
+        
+        //Animation and renderer
+        if (moveX > 0)
+            _spriteRenderer.flipX = false;
+        else if (moveX < 0)
+            _spriteRenderer.flipX = true;
+
+        if (!isGrounded)
+            return;
+
+        if (moveX != 0 || moveZ != 0)
+            _animator.SetBool("Running", true);
+        else _animator.SetBool("Running", false);
     }
 
     void Jump()
@@ -75,9 +94,13 @@ public class Character_Movement : MonoBehaviour
         if (isGrounded)
             moveForce.y = -2;
         else moveForce.y += (Physics.gravity.y * gravityModifier) * Time.deltaTime;
-        
+
         if (Input.GetKey(KeyCode.Space) && isGrounded)
+        {
             moveForce.y = jumpHeight;
+            _animator.Play("Jump");
+            AudioManager._instance.playListSound("Player_Jump");
+        }
 
         controller.Move(moveForce * Time.deltaTime);
     }

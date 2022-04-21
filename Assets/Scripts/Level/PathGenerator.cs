@@ -54,26 +54,30 @@ public class PathGenerator : MonoBehaviour
     {
         if (!CheckPath(pointStart, pointEnd))
             Debug.Log("Couldn't find any path to end");
-
-        pathPoints.Clear();
-
-        pathPoints.Add(openPoints[0]);
-        pathPoints.Add(new Points());
-
-        int i = 1;
-        while (true)
+        else
         {
-            pathPoints[i] = closedPoints.Find(p => p.pointPosition == pathPoints[i - 1].parentPosition);
 
-            if (pathPoints[i].pointPosition == pointStart)
-                break;
-            else pathPoints.Add(new Points());
-            
-            i++;
+            pathPoints.Clear();
+
+            pathPoints.Add(openPoints[0]);
+            pathPoints.Add(new Points());
+
+            int i = 1;
+            while (true)
+            {
+                pathPoints[i] = closedPoints.Find(p => p.pointPosition == pathPoints[i - 1].parentPosition);
+
+                if (pathPoints[i].pointPosition == pointStart)
+                    break;
+                else pathPoints.Add(new Points());
+
+                i++;
+            }
+
+            pathPoints.Reverse();
+            return pathPoints;
         }
-
-        pathPoints.Reverse();
-        return pathPoints;
+        return null;
     }
 
     void ClearPath()

@@ -36,6 +36,8 @@ public class FireManager : MonoBehaviour
 
     public void InitFire(Vector2Int initFireAmountRange, int mapWidth, int mapDepth)
     {
+        ClearFire();
+
         stageFire = new GameObject[mapWidth, mapDepth];
         int index = 0;
 
@@ -99,6 +101,8 @@ public class FireManager : MonoBehaviour
         {
             yield return new WaitForSeconds(fireSpreadTime);
 
+            AudioManager._instance.playListSound("Ignite");
+
             List<GameObject> stageFireList = new List<GameObject>();
 
             for (int y = 0; y < depth; y++)
@@ -110,24 +114,15 @@ public class FireManager : MonoBehaviour
                         if (x + 1 < width)
                             stageFireList.Add(stageFire[x + 1, y]);
 
-                        Debug.Log("Placed fire right");
-
                         if (y + 1 < depth)
                             stageFireList.Add(stageFire[x, y + 1]);
-
-                        Debug.Log("Placed fire up");
 
                         if (x - 1 >= 0)
                             stageFireList.Add(stageFire[x - 1, y]);
 
-                        Debug.Log("Placed fire left");
-
                         if (y - 1 >= 0)
                             stageFireList.Add(stageFire[x, y - 1]);
-
-                        Debug.Log("Placed fire down");
                     }
-
                 }
             }
 

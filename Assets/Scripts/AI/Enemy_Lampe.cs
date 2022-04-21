@@ -6,7 +6,7 @@ using UnityEngine;
 
 public class Enemy_Lampe : MonoBehaviour
 {
-    public NavMeshAgent agent;
+    public Enemy_Pathfind agent;
     public Transform player;
     public LayerMask whatIsGround, whatIsPlayer;
 
@@ -26,7 +26,7 @@ public class Enemy_Lampe : MonoBehaviour
     private void Awake()
     {
         player = GameObject.Find("Player").transform;
-        agent = GetComponent<NavMeshAgent>();
+        agent = GetComponent<Enemy_Pathfind>();
     }
 
     private void Update()
@@ -44,9 +44,9 @@ public class Enemy_Lampe : MonoBehaviour
     {
         if (!walkPointSet) SearchWalkPoint();
 
-        if (walkPointSet)
-            agent.SetDestination(walkPoint);
-
+        if (walkPointSet && !agent.isMoving())
+            agent.GetPath(walkPoint);
+        
         Vector3 distanceToWalkPoint = transform.position - walkPoint;
 
         //Walkpoint reached
@@ -55,6 +55,8 @@ public class Enemy_Lampe : MonoBehaviour
     }
     private void SearchWalkPoint()
     {
+        Debug.Log("Searching");
+
         //Calculate random point in range
         float randomZ = Random.Range(-walkPointRange, walkPointRange);
         float randomX = Random.Range(-walkPointRange, walkPointRange);
@@ -63,22 +65,22 @@ public class Enemy_Lampe : MonoBehaviour
 
         if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround))
             walkPointSet = true;
-    }
 
+        Debug.Log("Found walkpoint");
+    }
     private void ChasePlayer()
     {
-        agent.SetDestination(player.position);
+        agent.GetPath(player.transform.position);
     }
     private void AttackPlayer()
     {
         //makes sure enemy does not move
-        agent.SetDestination(transform.position);
+        //agent.StopPath();
 
-        transform.LookAt(player);
+        //transform.LookAt(player);
 
         if (!alreadyAttacked)
         {
-
             alreadyAttacked = true;
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
         }

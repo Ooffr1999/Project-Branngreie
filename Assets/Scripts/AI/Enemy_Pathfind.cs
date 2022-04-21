@@ -21,7 +21,7 @@ public class Enemy_Pathfind : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.K))
-            GetRandomPath();
+            GetPath(_target);
 
         if (!move)
             return;
@@ -29,21 +29,32 @@ public class Enemy_Pathfind : MonoBehaviour
         float step = _moveSpeed * Time.deltaTime;
         transform.position = Vector3.MoveTowards(transform.position, path[pathStep].pointPosition, step);
 
-        if (Vector3.Distance(transform.position, path[pathStep].pointPosition) < 0.25)
+        if (Vector3.Distance(transform.position, path[pathStep].pointPosition) < 0.1f)
         {
-            pathStep++;
+            if (pathStep + 1 < path.Count)
+                pathStep++;
+            else
+            {
+                move = false;
+                OnDestinationReach();
+            }
         }
 
+        /*
         if (Vector3.Distance(transform.position, _target) < 0.25)
+        {
+            //OnDestinationReach();
             move = false;
+        }
+        */
     }
 
     //Denne funksjonen fungerer bra
     public void GetPath(Vector3 targetPosition)
     {
-        _target = targetPosition;
-        path = _levelGenerator._pathGenerator.GetPath(_levelGenerator.getGridSquareFromPosition(transform.position), _levelGenerator.getGridSquareFromPosition(_target));
-        pathStep = 0;
+        _target = _levelGenerator.getGridSquareFromPosition(targetPosition);
+        path = _levelGenerator._pathGenerator.GetPath(_levelGenerator.getGridSquareFromPosition(transform.position), _target);
+        pathStep = 1;
         move = true;
     }
 
@@ -56,7 +67,6 @@ public class Enemy_Pathfind : MonoBehaviour
 
             if (_levelGenerator._pathGenerator.evaluatePoint(_levelGenerator._pathGenerator.getPoint(_levelGenerator.grid[randomGridPoint], Vector3.zero, Vector3.zero, 0)))
             {
-
                 if (_levelGenerator._pathGenerator.CheckPath(_levelGenerator.getGridSquareFromPosition(transform.position), _levelGenerator.getGridSquareFromPosition(_levelGenerator.grid[randomGridPoint])))
                 {
                     GetPath(_levelGenerator.grid[randomGridPoint]);
@@ -64,5 +74,20 @@ public class Enemy_Pathfind : MonoBehaviour
                 }
             }
         }
+    }
+
+    public void StopPath()
+    {
+        move = false;
+    }
+
+    public virtual void OnDestinationReach()
+    {
+        Debug.Log("Found last point");
+    }
+
+    public bool isMoving()
+    {
+        return move;
     }
 }

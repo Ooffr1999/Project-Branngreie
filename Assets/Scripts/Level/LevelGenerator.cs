@@ -256,9 +256,6 @@ public class LevelGenerator : MonoBehaviour
             boundsCenterX = 0.5f * sizeModifier;
         if (mapDepth % 2 == 0)
             boundsCenterZ = 0.5f * sizeModifier;
-
-        //_roomBounds.center = new Vector3(-boundsCenterX, (room.roomHeight * sizeModifier) / 2, (mapDepth / 2) - boundsCenterZ);
-        //_roomBounds.size = new Vector3(mapWidth * sizeModifier, room.roomHeight * sizeModifier, mapDepth * sizeModifier);
         #endregion
 
         GenInterior(room);                                                                                                  //Generate an interior to the room
@@ -270,21 +267,6 @@ public class LevelGenerator : MonoBehaviour
     {
         //Place whiteblocks around the room
         CleanRoomInterior();
-        /*
-        for (int i = 0; i < grid.Count; i++)
-        {
-            int percentage = Random.Range(0, 101);
-
-            if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != _roomStart && grid[i] != _roomEnd)
-            {
-                BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
-                
-                blocksPool[i].SetActive(true);
-                blocksPool[i].transform.position = grid[i];
-                
-            }
-        }
-        */
 
         StartCoroutine(checkObjectPosition(room));
 
@@ -323,7 +305,7 @@ public class LevelGenerator : MonoBehaviour
             blocksPool[i].SetActive(false);
         }
 
-        _fireManager.ClearFire();
+        //_fireManager.ClearFire();
     }
 
     public void getRoomTraversal()
@@ -413,17 +395,17 @@ public class LevelGenerator : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForFixedUpdate();
 
-        
-        for (int i = 0; i < blocksPool.Count; i++)
+        for (int y = 0; y < blockList.Count; y++)
         {
-            BoxCollider col = blocksPool[i].GetComponent<BoxCollider>();
-
-            if (Physics.CheckBox(blocksPool[i].transform.position, col.size, blocksPool[i].transform.localRotation, _obstacle))
+            if (y + 1 < blockList.Count)
             {
-                Debug.Log(col.size);
-                blockList[i].SetActive(false);
+                BoxCollider col1 = blockList[y].GetComponent<BoxCollider>();
+                BoxCollider col2 = blockList[y + 1].GetComponent<BoxCollider>();
+
+                if (col1.bounds.Intersects(col2.bounds))
+                    blockList[y].SetActive(false);
             }
         }
     }
