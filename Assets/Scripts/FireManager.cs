@@ -13,8 +13,6 @@ public class FireManager : MonoBehaviour
     public List<GameObject> firePool;
     GameObject[,] stageFire;
 
-    int fireActivatedAmount = 0;
-    int width, depth;
     LevelGenerator _levelGenerator;
 
     private void Awake()
@@ -36,7 +34,11 @@ public class FireManager : MonoBehaviour
 
     public void InitFire(Vector2Int initFireAmountRange, int mapWidth, int mapDepth)
     {
-        ClearFire();
+        StopCoroutine("spreadFire");
+        StartCoroutine("spreadFire");
+
+        if (stageFire != null)
+            ClearFire();
 
         stageFire = new GameObject[mapWidth, mapDepth];
         int index = 0;
@@ -57,38 +59,20 @@ public class FireManager : MonoBehaviour
 
         for (int i = 0; i < rand; i++)
         {
+            print("Start fire");
+
             int x = Random.Range(0, mapWidth);
             int y = Random.Range(0, mapDepth);
 
             stageFire[x, y].SetActive(true);
         }
-
-        width = mapWidth;
-        depth = mapDepth;
-
-        StopCoroutine(spreadFire());
-        StartCoroutine(spreadFire());
-    }
-
-    public Vector2Int[] FireSpreadDirections(int x, int y)
-    {
-        Vector2Int[] directions = new Vector2Int[4];
-
-        directions[0] = new Vector2Int(x + 1, y);
-        directions[1] = new Vector2Int(x, y - 1);
-        directions[2] = new Vector2Int(x - 1, y);
-        directions[3] = new Vector2Int(x, y + 1);
-
-        return directions;
     }
 
     public void ClearFire()
-    {
-        fireActivatedAmount = 0;
-
-        for (int y = 0; y < depth; y++)
+    {        
+        for (int y = 0; y < stageFire.GetLength(1); y++)
         {
-            for(int x = 0; x < width; x++)
+            for(int x = 0; x < stageFire.GetLength(0); x++)
             {
                 stageFire[x, y].SetActive(false);
             }
@@ -101,20 +85,22 @@ public class FireManager : MonoBehaviour
         {
             yield return new WaitForSeconds(fireSpreadTime);
 
+            Debug.Log("Spread fire");
+
             AudioManager._instance.playListSound("Ignite");
 
             List<GameObject> stageFireList = new List<GameObject>();
 
-            for (int y = 0; y < depth; y++)
+            for (int y = 0; y < stageFire.GetLength(1); y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < stageFire.GetLength(0); x++)
                 {
                     if (stageFire[x, y].activeSelf == true)
                     {
-                        if (x + 1 < width)
+                        if (x + 1 < stageFire.GetLength(0))
                             stageFireList.Add(stageFire[x + 1, y]);
 
-                        if (y + 1 < depth)
+                        if (y + 1 < stageFire.GetLength(1))
                             stageFireList.Add(stageFire[x, y + 1]);
 
                         if (x - 1 >= 0)

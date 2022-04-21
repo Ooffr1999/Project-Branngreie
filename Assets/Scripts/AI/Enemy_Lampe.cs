@@ -17,11 +17,16 @@ public class Enemy_Lampe : MonoBehaviour
 
     //Attacking
     public float timeBetweenAttacks;
+    public GameObject attackEffect;
     bool alreadyAttacked;
 
     //States
     public float sightRange, attackRange;
     public bool playerInSightRange, playerInAttackRange;
+
+    //Animation
+    public SpriteRenderer _renderer;
+    public Animator _animator;
 
     private void Awake()
     {
@@ -37,15 +42,36 @@ public class Enemy_Lampe : MonoBehaviour
 
         if (!playerInSightRange && !playerInAttackRange) Patrolling();
         if (playerInSightRange && !playerInAttackRange) ChasePlayer();
-        if (playerInSightRange && playerInAttackRange) AttackPlayer();
+        if (playerInSightRange && playerInAttackRange)
+        {
+            AttackPlayer();
+            attackEffect.SetActive(true);
+        }
+        else attackEffect.SetActive(false);
+
+        //Animation
+        if (walkPoint.x < transform.position.x)
+            _renderer.flipX = true;
+        else _renderer.flipX = false;
+
+        attackEffect.SetActive(!_animator.GetBool("IsMoving"));
+
+        if (_renderer.flipX)
+        {
+            attackEffect.transform.localPosition = new Vector3(-1.5f, 1.2f, 0f);
+            attackEffect.transform.localScale = new Vector3(-2, 1.2f, 0f);
+        }
+        else
+        {
+            attackEffect.transform.localPosition = new Vector3(1.5f, 1.2f, 0f);
+            attackEffect.transform.localScale = new Vector3(2, 1.2f, 0f);
+        }
+
     }
 
     private void Patrolling()
     {
         if (!walkPointSet) SearchWalkPoint();
-
-        if (walkPointSet && !agent.isMoving())
-            agent.GetPath(walkPoint);
         
         Vector3 distanceToWalkPoint = transform.position - walkPoint;
 
@@ -55,32 +81,24 @@ public class Enemy_Lampe : MonoBehaviour
     }
     private void SearchWalkPoint()
     {
-        Debug.Log("Searching");
-
-        //Calculate random point in range
-        float randomZ = Random.Range(-walkPointRange, walkPointRange);
-        float randomX = Random.Range(-walkPointRange, walkPointRange);
-
-        walkPoint = new Vector3(transform.position.x + randomX, transform.position.y, transform.position.z + randomZ);
-
-        if (Physics.Raycast(walkPoint, -transform.up, 2f, whatIsGround))
-            walkPointSet = true;
-
-        Debug.Log("Found walkpoint");
+        _animator.SetBool("IsMoving", true);
+        walkPoint = agent.GetRandomPathInRange(walkPointRange);
+        walkPointSet = true;
     }
     private void ChasePlayer()
     {
+        _animator.SetBool("IsMoving", true);
         agent.GetPath(player.transform.position);
     }
     private void AttackPlayer()
     {
-        //makes sure enemy does not move
-        //agent.StopPath();
-
-        //transform.LookAt(player);
+        _animator.SetBool("IsMoving", false);
 
         if (!alreadyAttacked)
         {
+            //Attack
+            _animator.Play("Lamp_Attack");
+
             alreadyAttacked = true;
             Invoke(nameof(ResetAttack), timeBetweenAttacks);
         }

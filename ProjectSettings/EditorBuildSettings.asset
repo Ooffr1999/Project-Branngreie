@@ -6,7 +6,10 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/PlayScene.unity
+    path: Assets/Scenes/IntroFilmScene.unity
+    guid: 78165039b7492534f991809e7ff23220
+  - enabled: 1
+    path: Assets/Scenes/PlayScenes/PlayScene.unity
     guid: 2cda990e2423bbf4892e6590ba056729
   - enabled: 1
     path: Assets/Scenes/SurpriseScene.unity

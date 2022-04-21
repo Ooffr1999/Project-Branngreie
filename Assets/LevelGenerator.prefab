@@ -1,0 +1,145 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &3296946932603556045
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3296946932603556047}
+  - component: {fileID: 3296946932603556046}
+  - component: {fileID: 3296946932603556032}
+  - component: {fileID: 3296946932603556034}
+  - component: {fileID: 3296946932603556033}
+  m_Layer: 0
+  m_Name: LevelGenerator
+  m_TagString: LevelGenerator
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3296946932603556047
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3296946932603556045}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 1.07, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &3296946932603556046
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3296946932603556045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bacf217d43b8ec047b9f4518aa0f487a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  roomsTraversalBeforeExitAmount: 7
+  sizeModifier: 1.5
+  floorTile: {fileID: 1779311664430497020, guid: 3798c8d6615722d4e95ad7f92a6fbc61, type: 3}
+  wallTile: {fileID: 5644916587572147699, guid: fae9eb5a33e54314aad562510f8eacdd, type: 3}
+  door: {fileID: 885276218755831945, guid: d3375608bf89bb145bd476a3d06f397c, type: 3}
+  enemyTypes:
+  - {fileID: 2175136585276105334, guid: 04aafd4f73321a44dbe10de53fb46877, type: 3}
+  roomDirectionalLight: {fileID: 0}
+  rooms:
+  - name: Living Room
+    roomWidthRange: {x: 5, y: 17}
+    roomDepthRange: {x: 4, y: 7}
+    roomHeight: 3
+    tempTrackToPlay: Livingroom Ambience
+    floorMats:
+    - {fileID: 2100000, guid: 908993ad33222314d8931a049e751df0, type: 2}
+    wallMats:
+    - {fileID: 2100000, guid: 7a92381ba677a744e9d4e21295333311, type: 2}
+    roomObjectSpawnChancePerTile: 42.8
+    roomObjects:
+    - {fileID: 4488360009854066118, guid: 6f29c558d2ba2564aa567299113d3226, type: 3}
+    - {fileID: 4117232078353130468, guid: 4bf153bd90e96f9489fc2533e668b299, type: 3}
+    lightColor: {r: 0, g: 0.09929433, b: 0.9137255, a: 0}
+    maxMonsterAmount: 3
+    fireAmountRange: {x: 3, y: 6}
+  - name: Bath Room
+    roomWidthRange: {x: 2, y: 6}
+    roomDepthRange: {x: 2, y: 4}
+    roomHeight: 2
+    tempTrackToPlay: Bathroom Ambience
+    floorMats:
+    - {fileID: 2100000, guid: f4bd309cd1c8f6a4b91e37f0852cbf70, type: 2}
+    - {fileID: 2100000, guid: 5e50ef35ff083f3438168f0595221afb, type: 2}
+    wallMats:
+    - {fileID: 2100000, guid: f07055e09312a6742bc30fd82d719630, type: 2}
+    roomObjectSpawnChancePerTile: 49.1
+    roomObjects:
+    - {fileID: 5882403574974183959, guid: fa988cc7a9ca6f146a7df90a83e7b480, type: 3}
+    lightColor: {r: 0.7830189, g: 0.7830189, b: 0.7830189, a: 0}
+    maxMonsterAmount: 0
+    fireAmountRange: {x: 1, y: 2}
+  _obstacle:
+    serializedVersion: 2
+    m_Bits: 64
+  floorPool: []
+  wallPool: []
+  doorPool: []
+  blocksPool: []
+  enemyPool: []
+  _roomStart: {x: 0, y: 0, z: 0}
+  _roomEnd: {x: 0, y: 0, z: 0}
+  grid: []
+  _pathGenerator: {fileID: 0}
+  _fireManager: {fileID: 3296946932603556034}
+--- !u!114 &3296946932603556032
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3296946932603556045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 22690e0437fa32b489c3c2c15feabca2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &3296946932603556034
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3296946932603556045}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8669c71b00024b242981aeac40a7ec46, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  fireSpreadTime: 5
+  Fire_Prefab: {fileID: 7624312767055860580, guid: 7d92140ab8f5ffc4b8137c5a831f94bf, type: 3}
+  whatIsFire:
+    serializedVersion: 2
+    m_Bits: 256
+  firePool: []
+--- !u!65 &3296946932603556033
+BoxCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3296946932603556045}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Enabled: 0
+  serializedVersion: 2
+  m_Size: {x: 21, y: 4.5, z: 6}
+  m_Center: {x: -0.75, y: 2.25, z: 1.25}

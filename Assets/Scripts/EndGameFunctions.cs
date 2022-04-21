@@ -7,6 +7,6 @@ public class EndGameFunctions : MonoBehaviour
 {
     public void TransferScene()
     {
-        SceneManager.LoadScene(1);
+        SceneManager.LoadScene(2);
     }
 }

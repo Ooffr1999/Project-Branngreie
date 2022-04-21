@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -53,7 +52,12 @@ public class PathGenerator : MonoBehaviour
     public List<Points> GetPath(Vector3 pointStart, Vector3 pointEnd)
     {
         if (!CheckPath(pointStart, pointEnd))
+        {
             Debug.Log("Couldn't find any path to end");
+            pathPoints.Clear();
+            pathPoints.Add(openPoints[0]);
+            return pathPoints;
+        }
         else
         {
 
@@ -76,8 +80,7 @@ public class PathGenerator : MonoBehaviour
 
             pathPoints.Reverse();
             return pathPoints;
-        }
-        return null;
+        }   
     }
 
     void ClearPath()
@@ -122,6 +125,17 @@ public class PathGenerator : MonoBehaviour
 
         return true;
     }
+
+    public bool evaluatePosition(Vector3 position)
+    {
+        if (!_grid.Contains(position))
+            return false;
+
+        if (Physics.CheckBox(position, Vector3.one / 2, transform.rotation, _obstacleLayer))
+            return false;
+
+        return true;
+    }
     #endregion
 
     #region Get Values
@@ -136,6 +150,25 @@ public class PathGenerator : MonoBehaviour
         newPoint.parentPosition = parentPosition;
 
         return newPoint;
+    }
+
+    public Vector3 getRandomAccesiblePosition(Vector3 position,float range)
+    {
+        for (int i = 0; i < 50; i++)
+        {
+            int rand = Random.Range(0, _grid.Count);
+
+            switch (Vector3.Distance(position, _grid[rand]) < range)
+            {
+                case true:
+                    if (evaluatePosition(_grid[rand]))
+                        return _grid[rand]; 
+                    break;
+            }
+        }
+
+        Debug.Log("Found no accessible position. Returns Vector3.Zero");
+        return Vector3.zero;
     }
     #endregion
 

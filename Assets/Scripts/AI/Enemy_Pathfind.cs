@@ -21,7 +21,7 @@ public class Enemy_Pathfind : MonoBehaviour
     private void Update()
     {
         if (Input.GetKeyDown(KeyCode.K))
-            GetPath(_target);
+            GetRandomPathInRange(5);
 
         if (!move)
             return;
@@ -39,14 +39,6 @@ public class Enemy_Pathfind : MonoBehaviour
                 OnDestinationReach();
             }
         }
-
-        /*
-        if (Vector3.Distance(transform.position, _target) < 0.25)
-        {
-            //OnDestinationReach();
-            move = false;
-        }
-        */
     }
 
     //Denne funksjonen fungerer bra
@@ -54,26 +46,22 @@ public class Enemy_Pathfind : MonoBehaviour
     {
         _target = _levelGenerator.getGridSquareFromPosition(targetPosition);
         path = _levelGenerator._pathGenerator.GetPath(_levelGenerator.getGridSquareFromPosition(transform.position), _target);
-        pathStep = 1;
+
+        if (path.Count > 1)
+            pathStep = 1;
+        else pathStep = 0;
+
         move = true;
     }
 
     //Funksjonen fungerer, men ikke hver gang. Må fikses
-    public void GetRandomPath()
+    public Vector3 GetRandomPathInRange(float range)
     {
-        for (int i = 0; i < 10; i++)
-        {
-            int randomGridPoint = Random.Range(0, _levelGenerator.grid.Count);
+        Vector3 point = _levelGenerator._pathGenerator.getRandomAccesiblePosition(transform.position, range);
 
-            if (_levelGenerator._pathGenerator.evaluatePoint(_levelGenerator._pathGenerator.getPoint(_levelGenerator.grid[randomGridPoint], Vector3.zero, Vector3.zero, 0)))
-            {
-                if (_levelGenerator._pathGenerator.CheckPath(_levelGenerator.getGridSquareFromPosition(transform.position), _levelGenerator.getGridSquareFromPosition(_levelGenerator.grid[randomGridPoint])))
-                {
-                    GetPath(_levelGenerator.grid[randomGridPoint]);
-                    return;
-                }
-            }
-        }
+        GetPath(point);
+
+        return point;
     }
 
     public void StopPath()

@@ -11,7 +11,10 @@ public class LevelGenerator : MonoBehaviour
     public float sizeModifier = 1;
 
     [SerializeField]
-    GameObject floorTile, wallTile, door, block;
+    GameObject floorTile, wallTile, door;
+
+    [SerializeField]
+    GameObject[] enemyTypes;
 
     [SerializeField]
     Light roomDirectionalLight;
@@ -32,8 +35,10 @@ public class LevelGenerator : MonoBehaviour
     public List<GameObject> wallPool = new List<GameObject>();
     [HideInInspector]
     public List<GameObject> doorPool = new List<GameObject>();
-    List<GameObject> blocksPool = new List<GameObject>();
+    public List<GameObject> blocksPool = new List<GameObject>();
+    public List<GameObject> enemyPool = new List<GameObject>();
 
+    int _roomType;
     [HideInInspector]
     public Vector3 _roomStart, _roomEnd;
     BoxCollider _roomBounds;
@@ -55,12 +60,12 @@ public class LevelGenerator : MonoBehaviour
         _pathGenerator = GetComponent<PathGenerator>();
         _fireManager = GetComponent<FireManager>();
 
-        InitPool(200, 200, 2, 200);
+        InitPool(200, 200, 2, 30, 200);
         GenRoom();
     }
 
     //Generer et Pool til gulv og et Pool til vegger
-    void InitPool(int floorPoolSize, int wallPoolSize, int doorPoolSize, int fireSize)
+    void InitPool(int floorPoolSize, int wallPoolSize, int doorPoolSize, int blocksPerItemSize, int fireSize)
     {
         //Generate floor tiles to the floorpool
         for (int i = 0; i < floorPoolSize; i++)
@@ -87,11 +92,27 @@ public class LevelGenerator : MonoBehaviour
         }
 
         //Generate blocks for room interior
-        for (int i = 0; i < 200; i++)
+        foreach (Room r in rooms)
         {
-            blocksPool.Add(Instantiate(block, transform.position, block.transform.rotation));
-            blocksPool[blocksPool.Count - 1].SetActive(false);
-            blocksPool[blocksPool.Count - 1].transform.parent = this.transform;
+            for (int b = 0; b < r.roomObjects.Length; b++)
+            {
+                for (int i = 0; i < blocksPerItemSize; i++)
+                {
+                    GameObject newObject = Instantiate(r.roomObjects[b], transform.position, transform.rotation);
+                    newObject.transform.parent = this.transform;
+                    blocksPool.Add(newObject);
+                }
+            }
+        }
+
+        for (int i = 0; i < enemyTypes.Length; i++)
+        {
+            for (int m = 0; m < 5; m++)
+            {
+                GameObject mon = Instantiate(enemyTypes[i], transform.position, transform.rotation);
+                mon.SetActive(false);
+                enemyPool.Add(mon);
+            }
         }
 
         //Generate fire for the fireManager
@@ -260,6 +281,18 @@ public class LevelGenerator : MonoBehaviour
 
         GenInterior(room);                                                                                                  //Generate an interior to the room
 
+        #region Fill room with monsters
+        int randMon = Random.Range(0, room.maxMonsterAmount + 1);
+        Debug.Log("Spawned " + randMon + " monsters");
+
+        for (int m = 0; m < randMon; m++)
+        {
+            enemyPool[m].SetActive(true);
+            enemyPool[m].transform.position = _pathGenerator.getRandomAccesiblePosition(Vector3.zero, Mathf.Infinity);     
+        }
+        #endregion
+
+        //Generate fire
         _fireManager.InitFire(room.fireAmountRange, mapWidth, mapDepth);
     }
 
@@ -304,8 +337,15 @@ public class LevelGenerator : MonoBehaviour
         {
             blocksPool[i].SetActive(false);
         }
+    }
 
-        //_fireManager.ClearFire();
+    public void ClearMonsters()
+    {
+        //Deactivate enemies
+        for (int i = 0; i < enemyPool.Count; i++)
+        {
+            enemyPool[i].SetActive(false);
+        }
     }
 
     public void getRoomTraversal()
@@ -349,6 +389,7 @@ public class LevelGenerator : MonoBehaviour
     Room getRoom()
     {
         int rand = Random.Range(0, rooms.Length);
+        _roomType = rand;
         return rooms[rand];
     }
 
@@ -381,7 +422,19 @@ public class LevelGenerator : MonoBehaviour
 
     IEnumerator checkObjectPosition(Room room)
     {
-        List<GameObject> blockList = new List<GameObject>(); 
+        List<GameObject> blockList = new List<GameObject>();
+
+        int roomBlockStartValue = 0;
+
+        
+        for (int i = 0; i < _roomType; i++)
+        {
+            roomBlockStartValue += rooms[i].roomObjects.Length;
+        }
+
+        roomBlockStartValue *= 30;
+
+        Debug.Log("Roomblockvalue is " + roomBlockStartValue);
 
         for (int i = 0; i < grid.Count; i++)
         {
@@ -389,9 +442,11 @@ public class LevelGenerator : MonoBehaviour
 
             if (percentage < room.roomObjectSpawnChancePerTile && grid[i] != _roomStart && grid[i] != _roomEnd)
             {
-                blocksPool[i].SetActive(true);
-                blocksPool[i].transform.position = grid[i];
-                blockList.Add(blocksPool[i]);
+                int rand = Random.Range(roomBlockStartValue, roomBlockStartValue + (rooms[_roomType].roomObjects.Length * 30));
+
+                blocksPool[rand].SetActive(true);
+                blocksPool[rand].transform.position = grid[i];
+                blockList.Add(blocksPool[rand]);
             }
         }
 
@@ -437,6 +492,9 @@ public struct Room
 
     [Space(10)]
     public Color lightColor;
+
+    [Space(10)]
+    public int maxMonsterAmount;
 
     [Space(10)]
     public Vector2Int fireAmountRange;
